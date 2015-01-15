@@ -3,9 +3,9 @@
 *.DS_Store
 
 # ignore generated files
-/bin
+bin
 *.class
-
+ 
 # ignore temporary files
 .tmp/
 
