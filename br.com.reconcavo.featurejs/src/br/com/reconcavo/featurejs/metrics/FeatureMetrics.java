@@ -114,9 +114,7 @@ public class FeatureMetrics {
 					String systemMilis = String.valueOf(System.currentTimeMillis());
 					IViewPart viewPart = workbenchWindow
 							.getActivePage()
-							.showView(
-									"br.com.reconcavo.featurejs.view.FeatureMetricsView",
-									systemMilis, 2);
+							.showView(FeatureMetricsView.ID, systemMilis, 2);
 
 					FeatureMetrics.this.currentMetricsView = ((FeatureMetricsView) viewPart);
 					FeatureMetrics.this.currentMetricsView.clearGraph();
@@ -216,9 +214,3 @@ public class FeatureMetrics {
 		ConsoleUtil.printMessage(classConsole, messageToConsole);
 	}
 }
-
-/*
- * Location: /Users/alcemir/Documents/workspace/br.com.reconcavo.featurejs/
- * Qualified Name: br.com.reconcavo.featurejs.metrics.FeatureMetrics JD-Core
- * Version: 0.6.2
- */
