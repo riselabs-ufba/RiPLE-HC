@@ -1,4 +1,4 @@
-package br.com.reconcavo.featurejs.view;
+package br.com.reconcavo.featurejs.views;
 
 import br.com.reconcavo.featurejs.metrics.FileFeature;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class FeatureMetricsView extends ViewPart
 {
-  public static final String ID = "br.com.reconcavo.featurejs.view.FeatureMetricsView";
+  public static final String ID = "br.com.reconcavo.featurejs.views.FeatureMetricsView";
   private Composite parent;
   private Graph graph;
   private Map<String, GraphNode> featureGraphNode = new HashMap();

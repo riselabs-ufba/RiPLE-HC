@@ -2,7 +2,8 @@ package br.com.reconcavo.featurejs.metrics;
 
 import br.com.reconcavo.featurejs.util.CollectionUtil;
 import br.com.reconcavo.featurejs.util.ConsoleUtil;
-import br.com.reconcavo.featurejs.view.FeatureMetricsView;
+import br.com.reconcavo.featurejs.views.FeatureMetricsView;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
