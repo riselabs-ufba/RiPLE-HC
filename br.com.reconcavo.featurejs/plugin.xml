@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="de.ovgu.featureide.core.composers">
+      <composer
+            class="br.com.reconcavo.featurejs.FeatureJsComposer"
+            description="JS composer to FeatureIDE"
+            id="br.com.reconcavo.featurejs.FeatureJsComposer"
+            name="FeatureJS"
+            nature="br.com.reconcavo.featurejs.FeatureJsComposer">
+      </composer>
+   </extension>
+   <extension point="org.eclipse.ui.views">
+     <view id="br.com.reconcavo.featurejs.view.FeatureMetricsView"
+          name="FeatureJS Metrics"
+          class="br.com.reconcavo.featurejs.view.FeatureMetricsView"
+          icon="icon/FeatureJSIcon.gif"
+          allowMultiple="true" 
+     />
+   </extension>
+
+</plugin>
