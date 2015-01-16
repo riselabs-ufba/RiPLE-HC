@@ -24,13 +24,6 @@
            name="FeatureJS"
            parentCategory="FeatureIDE">
      </category>
-     <view
-           category="br.com.reconcavo.featurejs"
-           class="br.com.reconcavo.featurejs.views.TraceabilityTreeView"
-           icon="icons/sample.gif"
-           id="br.com.reconcavo.featurejs.views.TraceabilityTreeView"
-           name="Traceability Tree View">
-     </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">

@@ -1,6 +1,7 @@
 package br.com.reconcavo.featurejs;
 
 import de.ovgu.featureide.fm.core.AbstractCorePlugin;
+
 import org.osgi.framework.BundleContext;
 
 public class FeatureJsCorePlugin extends AbstractCorePlugin {
@@ -24,4 +25,6 @@ public class FeatureJsCorePlugin extends AbstractCorePlugin {
 	public static FeatureJsCorePlugin getDefault() {
 		return plugin;
 	}
+
+	
 }
