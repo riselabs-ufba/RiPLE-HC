@@ -31,6 +31,7 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import br.com.rise.featurejs.ui.FeatureJSUIPlugin;
 import br.com.rise.featurejs.ui.actions.TraceabilityOutlineUpdateAction;
 import br.com.rise.featurejs.ui.editors.MyTextEditor;
+import br.com.rise.featurejs.ui.model.OutlineNode;
 
 /**
  * @author "Alcemir Santos"
@@ -44,7 +45,7 @@ public class TraceabilityOutlinePage extends ContentOutlinePage {
 
 	private static final String ACTION_HIDE_MACROS = "hideMacros";
 
-	private MacrosOutlineInput input;
+	private TraceabilityOutlineInput input;
 	private TraceabilityOutlineFilter filter;
 	private Map<String, IAction> outlineActions;
 	private int expandLevel;
@@ -198,7 +199,7 @@ public class TraceabilityOutlinePage extends ContentOutlinePage {
 		getTreeViewer().addSelectionChangedListener(listener);
 	}
 
-	public void update(MacrosOutlineInput input) {
+	public void update(TraceabilityOutlineInput input) {
 		this.input = input;
 
 		TreeViewer viewer = getTreeViewer();

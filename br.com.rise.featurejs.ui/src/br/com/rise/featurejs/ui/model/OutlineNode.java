@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.com.rise.featurejs.ui.views.components;
+package br.com.rise.featurejs.ui.model;
 
 import java.util.ArrayList;
 
@@ -157,17 +157,14 @@ public class OutlineNode {
 	}
 
 	public static int getSmallerType(int type) {
-		if (type <= 5) {
+		if (type <= 2) {
 			return type - 1;
 		}
-		switch (type) {
-		case 13:
-			return 5;
-		case 14:
-			return 13;
-		case 45:
-			return 14;
-		}
-		return -1;
+		return 0;
 	}
+	
+	
+	
+	
+
 }

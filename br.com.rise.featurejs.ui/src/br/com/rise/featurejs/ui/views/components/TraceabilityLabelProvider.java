@@ -7,7 +7,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import br.com.reconcavo.featurejs.views.TraceabilityOutlineTreeView.TreeParent;
+import br.com.rise.featurejs.ui.model.OutlineNode;
 
 public class TraceabilityLabelProvider extends LabelProvider {
 
@@ -17,8 +17,15 @@ public class TraceabilityLabelProvider extends LabelProvider {
 
 	public Image getImage(Object obj) {
 		String imageKey = ISharedImages.IMG_OBJ_ELEMENT;
-		if (obj instanceof TreeParent)
-			imageKey = ISharedImages.IMG_OBJ_FOLDER;
+		Integer objType = ((OutlineNode) obj).getType(); 
+		if (obj instanceof OutlineNode)
+			if (objType == OutlineNode.TYPE_FEATURE)
+				imageKey = "feature";
+			else if(objType == OutlineNode.TYPE_MODULE)
+				imageKey = "module";
+			else if(objType == OutlineNode.TYPE_MACRO)
+				imageKey = "macro";
+				
 		return PlatformUI.getWorkbench().getSharedImages()
 				.getImage(imageKey);
 	}

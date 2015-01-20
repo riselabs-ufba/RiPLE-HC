@@ -5,7 +5,7 @@ import org.eclipse.ui.ISharedImages;
 
 import br.com.rise.featurejs.ui.FeatureJSUIPlugin;
 import br.com.rise.featurejs.ui.utils.Util;
-import br.com.rise.featurejs.ui.views.components.MacrosOutlineInput;
+import br.com.rise.featurejs.ui.views.components.TraceabilityOutlineInput;
 import br.com.rise.featurejs.ui.views.components.TraceabilityOutlinePage;
 
 public class TraceabilityOutlineUpdateAction extends Action{
@@ -21,7 +21,7 @@ public class TraceabilityOutlineUpdateAction extends Action{
 
 	  public void run() {
 	    if (this.outline.isModelDirty()){
-	    	MacrosOutlineInput input = Util.getMacrosInput();
+	    	TraceabilityOutlineInput input = Util.getMacrosInput();
 	    	this.outline.update(input);
 	    }
 	  }

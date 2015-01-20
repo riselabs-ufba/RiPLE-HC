@@ -1,5 +1,7 @@
 package br.com.rise.featurejs.ui;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -22,7 +24,7 @@ import org.osgi.framework.BundleContext;
 public class FeatureJSUIPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "br.com.rise.riplehc.ui"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "br.com.rise.featurejs.ui"; //$NON-NLS-1$
 
 	// The shared instance
 	private static FeatureJSUIPlugin plugin;
@@ -78,7 +80,7 @@ public class FeatureJSUIPlugin extends AbstractUIPlugin {
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+		return imageDescriptorFromPlugin(PLUGIN_ID, "icons"+File.separator+path);
 	}
 
 	public static IWorkbenchPage getCurrentWorkbenchPage() {

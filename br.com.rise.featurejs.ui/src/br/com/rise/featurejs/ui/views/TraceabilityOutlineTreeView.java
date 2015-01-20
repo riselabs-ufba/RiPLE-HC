@@ -20,8 +20,8 @@ import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import br.com.rise.featurejs.ui.FeatureJSUIPlugin;
 import br.com.rise.featurejs.ui.editors.MyTextEditor;
-import br.com.rise.featurejs.ui.views.components.MacrosOutlineInput;
-import br.com.rise.featurejs.ui.views.components.OutlineNode;
+import br.com.rise.featurejs.ui.model.OutlineNode;
+import br.com.rise.featurejs.ui.views.components.TraceabilityOutlineInput;
 import br.com.rise.featurejs.ui.views.components.TraceabilityOutlinePage;
 
 /**
@@ -71,7 +71,7 @@ public class TraceabilityOutlineTreeView extends ViewPart implements
 	 * 
 	 * @param input
 	 */
-	public void update(MacrosOutlineInput input) {
+	public void update(TraceabilityOutlineInput input) {
 		this.outline.update(input);
 	}
 
@@ -104,15 +104,15 @@ public class TraceabilityOutlineTreeView extends ViewPart implements
 
 	@Override
 	public void partActivated(IWorkbenchPart part) {
-		// test if is EditorPart and register this view
-		if ((part instanceof AbstractTextEditor)) {
-			if (this.outline.getEditor() != null) {
-				// TODO??? this.outline.getEditor().unregisterFullOutline(this);
-			}
-			MyTextEditor e = (MyTextEditor) part;
-			// TODO??? e.registerFullOutline(this);
-			setEditor(e);
-		}
+//		// test if is EditorPart and register this view
+//		if ((part instanceof AbstractTextEditor)) {
+//			if (this.outline.getEditor() != null) {
+//				// TODO??? this.outline.getEditor().unregisterFullOutline(this);
+//			}
+//			MyTextEditor e = (MyTextEditor) part;
+//			// TODO??? e.registerFullOutline(this);
+//			setEditor(e);
+//		}
 	}
 	@Override
 	public void partBroughtToTop(IWorkbenchPart part) {
@@ -148,7 +148,7 @@ public class TraceabilityOutlineTreeView extends ViewPart implements
 					TextEditor e = (TextEditor) cPage.findEditor(input);
 					if (e == null)
 						e = (TextEditor) cPage.openEditor(input,
-								"net.sourceforge.texlipse.TexEditor");
+								"org.eclipse.ui.DefaultTextEditor");
 					if (cPage.getActiveEditor() != e)
 						cPage.activate(e);
 					IDocument doc = e.getDocumentProvider().getDocument(

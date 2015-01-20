@@ -1,10 +1,10 @@
 package br.com.rise.featurejs.ui.utils;
 
-import br.com.rise.featurejs.ui.views.components.MacrosOutlineInput;
+import br.com.rise.featurejs.ui.views.components.TraceabilityOutlineInput;
 
 public class Util {
 
-	public static MacrosOutlineInput getMacrosInput() {
+	public static TraceabilityOutlineInput getMacrosInput() {
 		// TODO Auto-generated method stub
 		return null;
 	}

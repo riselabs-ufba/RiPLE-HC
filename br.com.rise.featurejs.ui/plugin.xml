@@ -18,12 +18,31 @@
            id="br.com.rise.featurejs.ui.views.TraceabilityTreeView"
            name="Traceability Outline">
      </view>
+      <view
+            category="br.com.reconcavo.featurejs"
+            class="br.com.rise.featurejs.ui.views.ScatteringTreeView"
+            icon="icons/scattering.png"
+            id="br.com.rise.featurejs.ui.views.ScatteringTreeView"
+            name="Scattering Tree">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
       <contexts
             file="contexts.xml">
       </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="br.com.rise.featurejs.ui.views.ScatteringTreeView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.ProblemView">
+         </view>
+      </perspectiveExtension>
    </extension>
 
 </plugin>
