@@ -1,5 +1,7 @@
 package br.com.rise.featurejs.ui.views;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -33,6 +35,7 @@ import br.com.rise.featurejs.ui.handlers.ShowInScatteringTreeViewHandler;
 import br.com.rise.featurejs.ui.model.TreeObject;
 import br.com.rise.featurejs.ui.model.TreeParent;
 import br.com.rise.featurejs.ui.model.enums.TreeNodeType;
+import br.com.rise.featurejs.ui.views.components.ScatteringTreeManager;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewContentProvider;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewLabelProvider;
 
@@ -51,14 +54,14 @@ import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewLabelProvider
  * <p>
  */
 
-public class ScatteringTreeView extends ViewPart implements IShowInTarget {
+public class ScatteringTreeView extends ViewPart implements IShowInTarget , PropertyChangeListener{
 
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "br.com.rise.featurejs.ui.views.ScatteringTreeView";
 
-	private static TreeViewer viewer;
+	private TreeViewer viewer;
 	private DrillDownAdapter drillDownAdapter;
 	private Action updateTreeAction;
 	private Action action2;
@@ -71,6 +74,7 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget {
 	 * The constructor.
 	 */
 	public ScatteringTreeView() {
+		ScatteringTreeManager.getInstance().addChangeListener(this);
 	}
 
 	/**
@@ -228,10 +232,6 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget {
 				"Scattering Tree", message);
 	}
 
-	public static void setInput(TreeParent rootNode) {
-		viewer.setInput(rootNode);
-		viewer.refresh();
-	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
@@ -256,6 +256,15 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		TreeParent newInput = null;
+		if (evt.getNewValue() instanceof TreeParent) {
+			newInput = (TreeParent) evt.getNewValue();
+		}
+		this.viewer.setInput(newInput);
 	}
 
 }

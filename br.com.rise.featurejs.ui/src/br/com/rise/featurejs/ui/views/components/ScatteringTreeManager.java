@@ -3,8 +3,14 @@
  */
 package br.com.rise.featurejs.ui.views.components;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+
+import org.eclipse.swt.widgets.Tree;
 
 import br.com.rise.featurejs.ui.model.TreeParent;
 import br.com.rise.featurejs.ui.views.ScatteringTreeView;
@@ -16,9 +22,11 @@ import br.com.rise.featurejs.ui.views.ScatteringTreeView;
 public class ScatteringTreeManager {
 
 	private static ScatteringTreeManager manager;
-	
+
 	private String currentTreeName;
 	private HashMap<String, TreeParent> treesMap;
+
+	private List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 
 	/**
 	 * 
@@ -35,6 +43,7 @@ public class ScatteringTreeManager {
 
 	/**
 	 * Returns a <code>Collection</code> of the existing trees.
+	 * 
 	 * @return
 	 */
 	public Collection<TreeParent> getTrees() {
@@ -44,6 +53,7 @@ public class ScatteringTreeManager {
 
 	/**
 	 * Returns a <code>Collection</code> of IDs for the existing trees.
+	 * 
 	 * @return
 	 */
 	public Collection<String> getGraphsIDs() {
@@ -60,7 +70,7 @@ public class ScatteringTreeManager {
 			treesMap = new HashMap<String, TreeParent>();
 		}
 		treesMap.put(projectName, root);
-		setActiveGraph(projectName);
+		setActiveTree(projectName);
 	}
 
 	/**
@@ -74,6 +84,7 @@ public class ScatteringTreeManager {
 
 	/**
 	 * Returns the tree currently showing in the view.
+	 * 
 	 * @return
 	 */
 	public TreeParent getActiveTree() {
@@ -82,11 +93,26 @@ public class ScatteringTreeManager {
 
 	/**
 	 * Sets the active input to the <code>{@link ScatteringTreeView}</code>.
+	 * 
 	 * @param key
 	 */
-	public void setActiveGraph(String key) {
-		currentTreeName = key;
-		ScatteringTreeView.setInput(treesMap.get(currentTreeName));
+	public void setActiveTree(String key) {
+		notifyListeners(this, "tree", 
+				treesMap.get(currentTreeName),
+				treesMap.get(currentTreeName=key));
+	}
+
+	
+	public void addChangeListener(PropertyChangeListener newListener){
+		listeners.add(newListener);
+	}
+	
+	private void notifyListeners(Object object, String property,
+			TreeParent oldTreee, TreeParent newTree) {
+		for (PropertyChangeListener listener : listeners) {
+			listener.propertyChange(new PropertyChangeEvent(this, property,
+					oldTreee, newTree));
+		}
 	}
 
 }
