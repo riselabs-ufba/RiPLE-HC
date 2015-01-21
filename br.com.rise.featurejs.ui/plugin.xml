@@ -12,13 +12,6 @@
             id="br.com.rise.riplehc.ui.views.BuildMetricsView">
       </view>
       <view
-           category="br.com.reconcavo.featurejs"
-           class="br.com.rise.featurejs.ui.views.TraceabilityOutlineTreeView"
-           icon="icons/sample.gif"
-           id="br.com.rise.featurejs.ui.views.TraceabilityTreeView"
-           name="Traceability Outline">
-     </view>
-      <view
             category="br.com.reconcavo.featurejs"
             class="br.com.rise.featurejs.ui.views.ScatteringTreeView"
             icon="icons/scattering.png"
