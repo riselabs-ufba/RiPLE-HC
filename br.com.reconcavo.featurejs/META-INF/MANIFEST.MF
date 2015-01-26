@@ -16,4 +16,6 @@ Bundle-Activator: br.com.reconcavo.featurejs.FeatureJsCorePlugin
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: br.com.reconcavo.featurejs;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: br.com.reconcavo.featurejs,
+ br.com.reconcavo.featurejs.file
 

@@ -69,7 +69,9 @@ public class Lexer {
 					}
 				}
 				break;
-
+			
+			// testing for a JavaScript macro expression line
+			case JAVASCRIPT:
 			// testing for a Java macro expression line
 			case JAVA:
 				if (result.size() > 2)
@@ -589,5 +591,5 @@ public class Lexer {
 		return false;
 	}
 
-	public enum FileType{CPP, JAVA, CLAFER, CONSTRAINTS}
+	public enum FileType{CPP, JAVA, CLAFER, CONSTRAINTS, JAVASCRIPT}
 }

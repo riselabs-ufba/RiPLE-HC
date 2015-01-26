@@ -12,14 +12,15 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Tree;
 
+import br.com.reconcavo.featurejs.file.FileManager;
 import br.com.rise.featurejs.ui.model.TreeParent;
 import br.com.rise.featurejs.ui.views.ScatteringTreeView;
 
 /**
- * @author "Alcemir Santos"
+ * @author Alcemir Santos
  * 
  */
-public class ScatteringTreeManager {
+public class ScatteringTreeManager implements PropertyChangeListener{
 
 	private static ScatteringTreeManager manager;
 
@@ -31,8 +32,7 @@ public class ScatteringTreeManager {
 	/**
 	 * 
 	 */
-	private ScatteringTreeManager() {
-	}
+	private ScatteringTreeManager() {	}
 
 	public static ScatteringTreeManager getInstance() {
 		if (manager == null) {
@@ -113,6 +113,13 @@ public class ScatteringTreeManager {
 			listener.propertyChange(new PropertyChangeEvent(this, property,
 					oldTreee, newTree));
 		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		// TODO thinking about to add a listener to FileManager.
+		FileManager manager = (FileManager) evt.getNewValue();
+		manager.getFeatureMetrics().
 	}
 
 }

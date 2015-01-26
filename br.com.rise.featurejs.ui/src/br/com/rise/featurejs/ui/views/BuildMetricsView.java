@@ -1,6 +1,9 @@
 package br.com.rise.featurejs.ui.views;
 
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 import org.eclipse.jface.viewers.*;
@@ -10,6 +13,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
+
+import br.com.reconcavo.featurejs.FeatureJsComposer;
+import br.com.reconcavo.featurejs.file.FileManager;
 
 
 /**
@@ -52,13 +58,20 @@ public class BuildMetricsView extends ViewPart {
 	 * (like Task List, for example).
 	 */
 	 
-	class ViewContentProvider implements IStructuredContentProvider {
+	class ViewContentProvider implements IStructuredContentProvider, PropertyChangeListener {
+		public ViewContentProvider(){
+			FeatureJsComposer.addChangeListener(this);
+		}
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 		public void dispose() {
 		}
 		public Object[] getElements(Object parent) {
 			return new String[] { "One", "Two", "Three" };
+		}
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			// TODO fill with code
 		}
 	}
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
@@ -94,7 +107,7 @@ public class BuildMetricsView extends ViewPart {
 		viewer.setInput(getViewSite());
 
 		// Create the help context id for the viewer's control
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "br.com.rise.riplehc.ui.viewer");
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "br.com.rise.featurejs.ui.viewer");
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();

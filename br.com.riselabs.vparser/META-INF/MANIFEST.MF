@@ -11,3 +11,12 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.osgi,
  org.eclipse.core.runtime;bundle-version="3.9.0"
 Bundle-Vendor: RiSE Labs
+Export-Package: br.com.riselabs.vparser,
+ br.com.riselabs.vparser.beans,
+ br.com.riselabs.vparser.exceptions,
+ br.com.riselabs.vparser.lexer,
+ br.com.riselabs.vparser.lexer.beans,
+ br.com.riselabs.vparser.lexer.enums,
+ br.com.riselabs.vparser.parsers,
+ br.com.riselabs.vparser.util,
+ com.csvreader
