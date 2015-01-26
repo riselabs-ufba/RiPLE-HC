@@ -33,6 +33,11 @@
                id="br.com.rise.featurejs.ui.command.ShowInScatteringTreeView"
                name="Show in Scattering Tree View">
          </command>
+         <command
+               defaultHandler="br.com.rise.featurejs.ui.handlers.OpenSouceCodeEditorHandler"
+               id="br.com.rise.featurejs.ui.command.OpenEditor"
+               name="Open Source Code Editor">
+         </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">

@@ -5,7 +5,6 @@ package br.com.rise.featurejs.ui.handlers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -27,12 +26,10 @@ import br.com.rise.featurejs.ui.model.enums.TreeNodeType;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeManager;
 import br.com.riselabs.vparser.beans.CCVariationPoint;
 import br.com.riselabs.vparser.exceptions.PluginException;
-import br.com.riselabs.vparser.lexer.Lexer;
 import br.com.riselabs.vparser.lexer.beans.Token;
 import br.com.riselabs.vparser.parsers.JavaScriptParser;
 import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
-import de.ovgu.featureide.fm.core.Feature;
 
 /**
  * @author Alcemir Santos
@@ -91,7 +88,7 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 		IResource[] featureFolders = null;
 		IResource[] featureModules = null;
 		try {
-			// TODO create feature nodes
+			// create feature nodes
 			featureFolders = ifProj.getSourceFolder().members();
 		} catch (CoreException e) {
 			System.err.println(e.getMessage());
@@ -103,7 +100,7 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 				featureNode.setType(TreeNodeType.FEATURE);
 
 				try {
-					// TODO create modules nodes
+					//  create modules nodes
 					// get modules from this feature
 					featureModules = getModules(((IFolder) featureFolders[i])
 							.members());
@@ -158,6 +155,7 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 	private static TreeParent lookForChildren(IFile module) {
 		TreeParent father = new TreeParent(module.getName());
 		father.setType(TreeNodeType.MODULE);
+		father.setFile(module);
 		
 		List<CCVariationPoint> vps = null;
 		try {
@@ -167,9 +165,12 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 			System.err.println(e.getMessage());
 		}
 		for (CCVariationPoint ccVariationPoint : vps) {
-			// TODO create macro nodes
-			father.addChild(new TreeObject(formatVPDeclaration(ccVariationPoint
-					.getTokens())));
+			// create macro nodes
+			TreeObject leaf = new TreeObject(formatVPDeclaration(ccVariationPoint
+					.getTokens()));
+			leaf.setFile(module);
+			leaf.setLineMarker(ccVariationPoint.getLineNumber());
+			father.addChild(leaf);
 		}
 		return father;
 	}

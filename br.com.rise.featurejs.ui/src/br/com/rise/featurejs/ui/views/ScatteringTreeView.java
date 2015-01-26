@@ -2,8 +2,11 @@ package br.com.rise.featurejs.ui.views;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
 
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.NotEnabledException;
+import org.eclipse.core.commands.NotHandledException;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -25,6 +28,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
@@ -54,7 +58,8 @@ import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewLabelProvider
  * <p>
  */
 
-public class ScatteringTreeView extends ViewPart implements IShowInTarget , PropertyChangeListener{
+public class ScatteringTreeView extends ViewPart implements IShowInTarget,
+		PropertyChangeListener {
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -65,7 +70,6 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget , Prop
 	private DrillDownAdapter drillDownAdapter;
 	private Action updateTreeAction;
 	private Action action2;
-	private Action doubleClickAction;
 
 	class NameSorter extends ViewerSorter {
 	}
@@ -88,7 +92,8 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget , Prop
 		viewer.setLabelProvider(new ScatteringTreeViewLabelProvider());
 		viewer.setSorter(new NameSorter());
 		viewer.setInput(initialize());
-
+		getSite().setSelectionProvider(viewer);
+		
 		// Create the help context id for the viewer's control
 		PlatformUI
 				.getWorkbench()
@@ -160,20 +165,21 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget , Prop
 		action2.setToolTipText("Action 2 tooltip");
 		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 				.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		doubleClickAction = new Action() {
-			public void run() {
-				ISelection selection = viewer.getSelection();
-				Object obj = ((IStructuredSelection) selection)
-						.getFirstElement();
-				showMessage("Double-click detected on " + obj.toString());
-			}
-		};
 	}
 
 	private void hookDoubleClickAction() {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
-				doubleClickAction.run();
+				IHandlerService handlerService = (IHandlerService) getSite()
+						.getService(IHandlerService.class);
+				try {
+					handlerService.executeCommand(
+							"br.com.rise.featurejs.ui.command.OpenEditor", null);
+				} catch (ExecutionException | NotDefinedException
+						| NotEnabledException | NotHandledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -231,7 +237,6 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget , Prop
 		MessageDialog.openInformation(viewer.getControl().getShell(),
 				"Scattering Tree", message);
 	}
-
 
 	/**
 	 * Passing the focus request to the viewer's control.
