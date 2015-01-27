@@ -2,12 +2,11 @@ package br.com.rise.featurejs.ui.views.components;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 
 import br.com.rise.featurejs.ui.model.TreeObject;
 import br.com.rise.featurejs.ui.model.TreeParent;
-import br.com.rise.featurejs.ui.model.enums.TreeNodeType;
 import br.com.rise.featurejs.ui.views.ScatteringTreeView;
 
 /**
@@ -20,22 +19,17 @@ import br.com.rise.featurejs.ui.views.ScatteringTreeView;
  */
 public class ScatteringTreeViewContentProvider implements
 		IStructuredContentProvider, ITreeContentProvider {
-	/**
-	 * 
-	 */
-	private ScatteringTreeView view;
+
 	private TreeParent invisibleRoot;
+	private ViewerFilter filter;
 
 	/**
 	 * 
-	 * TODO check
-	 * http://www.eclipse.org/articles/Article-TreeViewer/TreeViewerArticle.htm
-	 * 
-	 * @param scatteringTreeView
+	 * @param aView
+	 * @param aFilter
 	 */
-	public ScatteringTreeViewContentProvider(
-			ScatteringTreeView scatteringTreeView) {
-		view = scatteringTreeView;
+	public ScatteringTreeViewContentProvider( ViewerFilter aFilter) {
+		this.filter = aFilter;
 	}
 
 	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
@@ -43,15 +37,11 @@ public class ScatteringTreeViewContentProvider implements
 	}
 
 	public void dispose() {
+		this.invisibleRoot = null;
 	}
 
 	public Object[] getElements(Object parent) {
-		if (parent.equals(view.getViewSite())) {
-			if (invisibleRoot == null)
-				invisibleRoot = view.initialize();
-			return getChildren(invisibleRoot);
-		}
-		return getChildren(parent);
+		return getChildren(invisibleRoot);
 	}
 
 	public Object getParent(Object child) {
@@ -69,8 +59,17 @@ public class ScatteringTreeViewContentProvider implements
 	}
 
 	public boolean hasChildren(Object parent) {
-		if (parent instanceof TreeParent)
-			return ((TreeParent) parent).hasChildren();
+		if (parent instanceof TreeParent) {
+			TreeParent node = (TreeParent) parent;
+			TreeObject[] list = node.getChildren();
+			
+			if((list!=null)&&(list.length>0)){
+				for (TreeObject treeObject : list) {
+					if (this.filter.select(null, parent, treeObject)) return true;
+				}
+				return false;
+			}
+		}
 		return false;
 	}
 

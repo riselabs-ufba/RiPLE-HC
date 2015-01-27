@@ -10,9 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.swt.widgets.Tree;
-
-import br.com.reconcavo.featurejs.file.FileManager;
 import br.com.rise.featurejs.ui.model.TreeParent;
 import br.com.rise.featurejs.ui.views.ScatteringTreeView;
 
@@ -118,8 +115,8 @@ public class ScatteringTreeManager implements PropertyChangeListener{
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		// TODO thinking about to add a listener to FileManager.
-		FileManager manager = (FileManager) evt.getNewValue();
-		manager.getFeatureMetrics().
+//		FileManager manager = (FileManager) evt.getNewValue();
+//		manager.getFeatureMetrics().
 	}
 
 }

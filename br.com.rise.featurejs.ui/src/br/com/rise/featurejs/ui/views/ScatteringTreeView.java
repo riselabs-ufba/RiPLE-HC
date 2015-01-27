@@ -9,12 +9,12 @@ import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -38,23 +38,13 @@ import br.com.rise.featurejs.ui.actions.ScatteringTreeUpdateAction;
 import br.com.rise.featurejs.ui.handlers.ShowInScatteringTreeViewHandler;
 import br.com.rise.featurejs.ui.model.TreeObject;
 import br.com.rise.featurejs.ui.model.TreeParent;
-import br.com.rise.featurejs.ui.model.enums.TreeNodeType;
+import br.com.rise.featurejs.ui.views.components.ScatteringTreeFilter;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeManager;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewContentProvider;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewLabelProvider;
 
 /**
- * This sample class demonstrates how to plug-in a new workbench view. The view
- * shows data obtained from the model. The sample creates a dummy model on the
- * fly, but a real implementation would connect to the model available either in
- * this or another plug-in (e.g. the workspace). The view is connected to the
- * model using a content provider.
- * <p>
- * The view uses a label provider to define how model objects should be
- * presented in the view. Each view can present the same model objects using
- * different labels and icons, if needed. Alternatively, a single label provider
- * can be shared between views in order to ensure that objects of the same type
- * are presented in the same way everywhere.
+ * This class show the scattering of a given project.
  * <p>
  */
 
@@ -70,6 +60,7 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	private DrillDownAdapter drillDownAdapter;
 	private Action updateTreeAction;
 	private Action action2;
+	private ScatteringTreeFilter filter;
 
 	class NameSorter extends ViewerSorter {
 	}
@@ -88,12 +79,14 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		drillDownAdapter = new DrillDownAdapter(viewer);
-		viewer.setContentProvider(new ScatteringTreeViewContentProvider(this));
+		this.filter = new ScatteringTreeFilter();
+		viewer.addFilter(this.filter);
+		viewer.setContentProvider(new ScatteringTreeViewContentProvider(this.filter));
 		viewer.setLabelProvider(new ScatteringTreeViewLabelProvider());
 		viewer.setSorter(new NameSorter());
-		viewer.setInput(initialize());
+
 		getSite().setSelectionProvider(viewer);
-		
+
 		// Create the help context id for the viewer's control
 		PlatformUI
 				.getWorkbench()
@@ -156,15 +149,46 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	private void makeActions() {
 		updateTreeAction = new ScatteringTreeUpdateAction();
 
-		action2 = new Action() {
+		action2 = makeHideModularFeatureNodesAction();
+		
+	}
+
+	private Action makeHideModularFeatureNodesAction() {
+		String description = "Hide Modular Features";
+		
+		Action action = new Action(description,
+				IAction.AS_CHECK_BOX) {
+
 			public void run() {
-				showMessage("Action 2 executed");
+				boolean oldState = ScatteringTreeView.this.filter
+						.isShowingAll();
+				ScatteringTreeView.this.filter.toggleExhibition();
+				TreeViewer viewer = ScatteringTreeView.this.getTreeViewer();
+				if (!oldState) {
+					ScatteringTreeView.this.revealNodes();
+				}
+				viewer.refresh();
 			}
 		};
-		action2.setText("Action 2");
-		action2.setToolTipText("Action 2 tooltip");
-		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+		
+		action.setText(description);
+		action.setToolTipText(description);
+		// TODO add a decent icon to hide action
+		action.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 				.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		
+		return action;
+	}
+
+	private void revealNodes() {
+		for (TreeObject node : ScatteringTreeManager.getInstance()
+				.getActiveTree().getChildren()) {
+			getTreeViewer().reveal(node);
+		}
+	}
+
+	private TreeViewer getTreeViewer() {
+		return this.viewer;
 	}
 
 	private void hookDoubleClickAction() {
@@ -173,70 +197,18 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 				IHandlerService handlerService = (IHandlerService) getSite()
 						.getService(IHandlerService.class);
 				try {
-					handlerService.executeCommand(
-							"br.com.rise.featurejs.ui.command.OpenEditor", null);
+					handlerService
+							.executeCommand(
+									"br.com.rise.featurejs.ui.command.OpenEditor",
+									null);
 				} catch (ExecutionException | NotDefinedException
 						| NotEnabledException | NotHandledException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		});
 	}
 
-	/**
-	 * Sets a dummy model to initialize tree heararchy. Afterwards, it should be
-	 * updated.
-	 */
-	public TreeParent initialize() {
-		TreeObject to1 = new TreeObject("Leaf 1");
-		TreeObject to2 = new TreeObject("Leaf 2");
-		TreeObject to3 = new TreeObject("Leaf 3");
-		TreeParent p1 = new TreeParent("Parent 1");
-		p1.setType(TreeNodeType.MODULE);
-		p1.addChild(to1);
-		p1.addChild(to2);
-		p1.addChild(to3);
-
-		TreeObject to4 = new TreeObject("Leaf 4");
-		TreeParent p2 = new TreeParent("Parent 2");
-		p2.setType(TreeNodeType.MODULE);
-		p2.addChild(to4);
-
-		TreeParent root = new TreeParent("Root");
-		root.setType(TreeNodeType.FEATURE);
-		root.addChild(p1);
-		root.addChild(p2);
-
-		TreeObject too1 = new TreeObject("Leaf 1");
-		TreeObject too2 = new TreeObject("Leaf 2");
-		TreeObject too3 = new TreeObject("Leaf 3");
-		TreeParent po1 = new TreeParent("Parent 1");
-		po1.setType(TreeNodeType.MODULE);
-		po1.addChild(too1);
-		po1.addChild(too2);
-		po1.addChild(too3);
-
-		TreeObject too4 = new TreeObject("Leaf 4");
-		TreeParent po2 = new TreeParent("Parent 2");
-		po2.setType(TreeNodeType.MODULE);
-		po2.addChild(too4);
-
-		TreeParent rooot = new TreeParent("Root");
-		rooot.setType(TreeNodeType.FEATURE);
-		rooot.addChild(po1);
-		rooot.addChild(po2);
-
-		TreeParent invisibleRoot = new TreeParent("");
-		invisibleRoot.addChild(root);
-		invisibleRoot.addChild(rooot);
-		return invisibleRoot;
-	}
-
-	private void showMessage(String message) {
-		MessageDialog.openInformation(viewer.getControl().getShell(),
-				"Scattering Tree", message);
-	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
