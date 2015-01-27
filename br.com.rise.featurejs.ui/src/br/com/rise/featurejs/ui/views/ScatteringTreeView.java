@@ -34,6 +34,7 @@ import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.part.ViewPart;
 
+import br.com.rise.featurejs.ui.FeatureJSUIPlugin;
 import br.com.rise.featurejs.ui.actions.ScatteringTreeUpdateAction;
 import br.com.rise.featurejs.ui.handlers.ShowInScatteringTreeViewHandler;
 import br.com.rise.featurejs.ui.model.TreeObject;
@@ -154,7 +155,7 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	}
 
 	private Action makeHideModularFeatureNodesAction() {
-		String description = "Hide Modular Features";
+		String description = "Show Modular Features";
 		
 		Action action = new Action(description,
 				IAction.AS_CHECK_BOX) {
@@ -173,9 +174,7 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 		
 		action.setText(description);
 		action.setToolTipText(description);
-		// TODO add a decent icon to hide action
-		action.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-				.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		action.setImageDescriptor(FeatureJSUIPlugin.getImageDescriptor("filter.png"));
 		
 		return action;
 	}
