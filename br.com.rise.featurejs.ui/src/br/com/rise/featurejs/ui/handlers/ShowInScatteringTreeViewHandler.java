@@ -43,11 +43,11 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 
 		String projectName = selectedProject.getName();
 
-		// TODO create scattering tree
+		// create scattering tree
 		TreeParent root = createScatteringTree(selectedProject);
 
 		// add tree to the manager
-		ScatteringTreeManager.getInstance().addTree(projectName, root);
+		ScatteringTreeManager.getInstance().addObject(projectName, root);
 
 		return null;
 	}
@@ -181,56 +181,6 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 			declaration += token.getValue() + " ";
 		}
 		return declaration;
-	}
-
-	/**
-	 * Sets a dummy model to initialize tree heararchy. Afterwards, it should be
-	 * updated.
-	 */
-	public static TreeParent dummyModel() {
-		TreeObject to1 = new TreeObject("Leaf 1");
-		TreeParent p1 = new TreeParent("Parent 1");
-		p1.setType(TreeNodeType.MODULE);
-		p1.addChild(to1);
-
-		TreeObject to4 = new TreeObject("Leaf 4");
-		TreeParent p2 = new TreeParent("Parent 2");
-		p2.setType(TreeNodeType.MODULE);
-		p2.addChild(to4);
-
-		TreeParent root = new TreeParent("Root");
-		root.setType(TreeNodeType.FEATURE);
-		root.addChild(p1);
-		root.addChild(p2);
-
-		TreeObject too1 = new TreeObject("Leaf 1");
-		TreeParent po1 = new TreeParent("Parent 1");
-		po1.setType(TreeNodeType.MODULE);
-		po1.addChild(too1);
-
-		TreeObject too4 = new TreeObject("Leaf 4");
-		TreeParent po2 = new TreeParent("Parent 2");
-		po2.setType(TreeNodeType.MODULE);
-		po2.addChild(too4);
-
-		TreeParent po3 = new TreeParent("Parent 3");
-		po3.setType(TreeNodeType.MODULE);
-
-		TreeParent rooot = new TreeParent("Root");
-		rooot.setType(TreeNodeType.FEATURE);
-		rooot.addChild(po1);
-		rooot.addChild(po2);
-		rooot.addChild(po3);
-
-		TreeParent rot = new TreeParent("Root");
-		rot.setType(TreeNodeType.FEATURE);
-
-		TreeParent invisibleRoot = new TreeParent("");
-		invisibleRoot.addChild(root);
-		invisibleRoot.addChild(rooot);
-		invisibleRoot.addChild(rot);
-
-		return invisibleRoot;
 	}
 
 }

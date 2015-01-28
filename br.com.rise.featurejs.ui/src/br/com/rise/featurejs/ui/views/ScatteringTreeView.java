@@ -25,7 +25,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -181,7 +180,7 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 
 	private void revealNodes() {
 		for (TreeObject node : ScatteringTreeManager.getInstance()
-				.getActiveTree().getChildren()) {
+				.getActiveObject().getChildren()) {
 			getTreeViewer().reveal(node);
 		}
 	}
