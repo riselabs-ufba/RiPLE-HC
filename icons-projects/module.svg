@@ -87,7 +87,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.35"
-     inkscape:cx="404.6223"
+     inkscape:cx="-101.09199"
      inkscape:cy="327.04851"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -95,8 +95,10 @@
      inkscape:window-width="1280"
      inkscape:window-height="721"
      inkscape:window-x="0"
-     inkscape:window-y="22"
-     inkscape:window-maximized="1" />
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true" />
   <metadata
      id="metadata3826">
     <rdf:RDF>
@@ -122,48 +124,60 @@
        sodipodi:cy="268.38019"
        sodipodi:rx="78.571426"
        sodipodi:ry="194.28572"
-       d="m 317.14285,268.38019 a 78.571426,194.28572 0 1 1 -0.0164,-3.97283"
+       d="m 317.14285,268.38019 c 0,107.30104 -35.17762,194.28572 -78.57142,194.28572 C 195.17763,462.66591 160,375.68123 160,268.38019 160,161.07915 195.17763,74.094467 238.57143,74.094467 c 42.76763,0 77.68047,84.582293 78.55499,190.312893"
        transform="matrix(5.1312935,0,0,1.8969936,-724.73051,172.53238)"
        sodipodi:start="0"
        sodipodi:end="6.2627355"
-       sodipodi:open="true" />
+       sodipodi:open="true"
+       inkscape:export-filename="/Users/alcemir/Documents/workspace/riple-hc/icons-projects/module.png"
+       inkscape:export-xdpi="1.384657"
+       inkscape:export-ydpi="1.384657" />
     <path
        sodipodi:open="true"
        sodipodi:end="6.2627355"
        sodipodi:start="0"
        transform="matrix(3.975519,0,0,1.7067282,-448.99574,223.59587)"
-       d="m 317.14285,268.38019 a 78.571426,194.28572 0 1 1 -0.0164,-3.97283"
+       d="m 317.14285,268.38019 c 0,107.30104 -35.17762,194.28572 -78.57142,194.28572 C 195.17763,462.66591 160,375.68123 160,268.38019 160,161.07915 195.17763,74.094467 238.57143,74.094467 c 42.76763,0 77.68047,84.582293 78.55499,190.312893"
        sodipodi:ry="194.28572"
        sodipodi:rx="78.571426"
        sodipodi:cy="268.38019"
        sodipodi:cx="238.57143"
        id="path4435"
        style="fill:url(#radialGradient4437);fill-opacity:1;stroke:none"
-       sodipodi:type="arc" />
+       sodipodi:type="arc"
+       inkscape:export-filename="/Users/alcemir/Documents/workspace/riple-hc/icons-projects/module.png"
+       inkscape:export-xdpi="1.384657"
+       inkscape:export-ydpi="1.384657" />
     <text
        xml:space="preserve"
-       style="font-size:315.84771729px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:STSong;-inkscape-font-specification:STSong"
-       x="437.13324"
-       y="928.61633"
+       style="font-size:477.67086792px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:STSong;-inkscape-font-specification:STSong"
+       x="451.11337"
+       y="943.38617"
        id="text4445"
        sodipodi:linespacing="125%"
-       transform="scale(1.0751054,0.93014135)"><tspan
+       transform="scale(1.0053995,0.99462949)"
+       inkscape:export-filename="/Users/alcemir/Documents/workspace/riple-hc/icons-projects/module.png"
+       inkscape:export-xdpi="1.384657"
+       inkscape:export-ydpi="1.384657"><tspan
          sodipodi:role="line"
          id="tspan4447"
-         x="437.13324"
-         y="928.61633"
+         x="451.11337"
+         y="943.38617"
          style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ffffff;font-family:Sans;-inkscape-font-specification:Sans Bold Italic">S</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:520.39849854px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
-       x="168.10469"
-       y="1280.5394"
+       style="font-size:645.11102295px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+       x="141.96719"
+       y="1192.6443"
        id="text4449"
        sodipodi:linespacing="125%"
-       transform="scale(1.8419671,0.54289786)"><tspan
+       transform="scale(1.8422806,0.54280548)"
+       inkscape:export-filename="/Users/alcemir/Documents/workspace/riple-hc/icons-projects/module.png"
+       inkscape:export-xdpi="1.384657"
+       inkscape:export-ydpi="1.384657"><tspan
          sodipodi:role="line"
          id="tspan4451"
-         x="168.10469"
-         y="1280.5394">J</tspan></text>
+         x="141.96719"
+         y="1192.6443">J</tspan></text>
   </g>
 </svg>
