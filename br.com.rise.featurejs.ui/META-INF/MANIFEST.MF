@@ -15,6 +15,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  br.com.riselabs.vparser;bundle-version="0.1.0",
  de.ovgu.featureide.core;bundle-version="2.6.5",
- de.ovgu.featureide.fm.core
+ de.ovgu.featureide.fm.core,
+ org.eclipse.gef4.zest.core,
+ org.eclipse.gef4.zest.layouts;bundle-version="0.1.0",
+ org.eclipse.draw2d;bundle-version="3.9.101"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

@@ -90,4 +90,17 @@ public class CCVariationPoint {
 		return (count == 1) ? true : false;
 	}
 
+	public boolean isSingleVP(){
+		return isSingleVP(tokens);
+	}
+	
+	@Override
+	public  String toString() {
+		String declaration = "";
+		for (Token token : tokens) {
+			declaration += token.getValue() + " ";
+		}
+		return declaration+"(Line "+lineNumber+")";
+	}
+	
 }

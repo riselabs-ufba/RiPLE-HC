@@ -1,9 +1,10 @@
 /**
  * 
  */
-package br.com.rise.featurejs.ui.views.components;
+package br.com.rise.featurejs.ui.helpers.managers;
 
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,16 @@ public abstract class AbstractManager<T> {
 	protected List<PropertyChangeListener> listeners;
 	
 
+	/**
+	 * might return null if the map is null or empty.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public T getObject(String key){
+		return (map == null || map.isEmpty() )? null : map.get(key);
+	}
+	
 	/**
 	 * Returns a <code>Collection</code> of the existing objects.
 	 * 
@@ -43,24 +54,25 @@ public abstract class AbstractManager<T> {
 	/**
 	 * Adds an object to the map of objects and sets the current key.
 	 * 
-	 * @param projectName - the key to the object
+	 * @param name - the key to the object
 	 * @param object - the object used to notify the listeners
 	 */
-	public void addObject(String projectName, T object) {
+	public void addObject(String name, T object) {
 		if (map == null) {
 			map = new HashMap<String, T>();
 		}
-		map.put(projectName, object);
-		setCurrent(projectName);
+		map.put(name, object);
+		setCurrent(name);
 	}
 	
 	/**
-	 * Returns the current object to be treated by the view.
+	 * Returns the current object to be treated by the view. The object returned might be null if the map is empty 
+	 * or have not been initialized yet.
 	 * 
 	 * @return
 	 */
 	public T getActiveObject() {
-		return map.get(currentItem);
+		return (map == null || map.isEmpty() )? null : map.get(currentItem);
 	}
 	
 	/**
@@ -68,8 +80,8 @@ public abstract class AbstractManager<T> {
 	 * 
 	 * @param key
 	 */
-	private void setCurrent(String key) {
-		notifyListeners(this, "item", 
+	public void setCurrent(String key) {
+		notifyListeners(this, key, 
 				map.get(currentItem),
 				map.get(currentItem=key));
 	}
@@ -84,7 +96,22 @@ public abstract class AbstractManager<T> {
 	}
 	
 	public void addChangeListener(PropertyChangeListener newListener){
+		if (listeners == null) {
+			listeners = new ArrayList<PropertyChangeListener>();
+		}
+		if (listeners.contains(newListener)) 
+			return;
 		listeners.add(newListener);
+	}
+	
+	/**
+	 * Returns whether exists an object mapped to the given key or not.
+	 *  
+	 * @param key
+	 * @return
+	 */
+	public boolean exists(String key){
+		return map!=null? map.containsKey(key) : false;
 	}
 	
 	protected abstract void notifyListeners(Object object, String property,

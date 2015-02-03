@@ -1,17 +1,15 @@
 /**
  * 
  */
-package br.com.rise.featurejs.ui.views.components;
+package br.com.rise.featurejs.ui.helpers.managers;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
+import br.com.rise.featurejs.ui.helpers.ScatteringTreeHelper;
+import br.com.rise.featurejs.ui.model.ScatteringTraceabilityLink;
 import br.com.rise.featurejs.ui.model.TreeParent;
-import br.com.rise.featurejs.ui.views.ScatteringTreeView;
 
 /**
  * @author Alcemir Santos
@@ -19,18 +17,20 @@ import br.com.rise.featurejs.ui.views.ScatteringTreeView;
  */
 public class ScatteringTreeManager extends AbstractManager<TreeParent> implements PropertyChangeListener{
 
-	private static ScatteringTreeManager manager;
+	private static ScatteringTreeManager instance;
 
 	/**
 	 * 
 	 */
-	private ScatteringTreeManager() {	}
+	private ScatteringTreeManager() {
+	}
 
 	public static ScatteringTreeManager getInstance() {
-		if (manager == null) {
-			manager = new ScatteringTreeManager();
+		if (instance == null) {
+			instance = new ScatteringTreeManager();
+			ScatteringTraceabilityLinksManager.getInstance().addChangeListener(instance);
 		}
-		return manager;
+		return instance;
 	}
 	
 	@Override
@@ -44,9 +44,9 @@ public class ScatteringTreeManager extends AbstractManager<TreeParent> implement
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		// TODO thinking about to add a listener to FileManager.
-//		FileManager manager = (FileManager) evt.getNewValue();
-//		manager.getFeatureMetrics().
+		List<ScatteringTraceabilityLink> links = (List<ScatteringTraceabilityLink>)evt.getNewValue();
+		String projectName = links.get(0).getProject().getProjectName();
+		addObject(projectName, new ScatteringTreeHelper().buildTree(links));
 	}
 
 }

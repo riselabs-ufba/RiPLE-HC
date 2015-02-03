@@ -1,26 +1,22 @@
 /**
  * 
  */
-package br.com.rise.featurejs.ui.handlers;
+package br.com.rise.featurejs.ui.helpers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.ISelectionService;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.handlers.HandlerUtil;
 
-import br.com.rise.featurejs.ui.helpers.managers.ScatteringTreeManager;
+import de.ovgu.featureide.core.CorePlugin;
+import de.ovgu.featureide.core.IFeatureProject;
+import br.com.rise.featurejs.ui.model.ModuleToVariationPointsLink;
+import br.com.rise.featurejs.ui.model.ScatteringTraceabilityLink;
 import br.com.rise.featurejs.ui.model.TreeObject;
 import br.com.rise.featurejs.ui.model.TreeParent;
 import br.com.rise.featurejs.ui.model.enums.TreeNodeType;
@@ -28,68 +24,59 @@ import br.com.riselabs.vparser.beans.CCVariationPoint;
 import br.com.riselabs.vparser.exceptions.PluginException;
 import br.com.riselabs.vparser.lexer.beans.Token;
 import br.com.riselabs.vparser.parsers.JavaScriptParser;
-import de.ovgu.featureide.core.CorePlugin;
-import de.ovgu.featureide.core.IFeatureProject;
 
 /**
  * @author Alcemir Santos
- * 
+ *
  */
-public class ShowInScatteringTreeViewHandler extends AbstractHandler {
+public class ScatteringTreeHelper {
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		IProject selectedProject = getSelectedProject(event);
-
-		String projectName = selectedProject.getName();
-
-		// create scattering tree
-		TreeParent root = createScatteringTree(selectedProject);
-
-		// add tree to the manager
-		ScatteringTreeManager.getInstance().addObject(projectName, root);
-
-		return null;
+	public TreeParent buildTree(List<ScatteringTraceabilityLink> links) {
+		return createScatteringTree(links);
 	}
 
-	/**
-	 * This method returns the selected project in the ProjectExplorer View
-	 * 
-	 * @param event
-	 * @return
-	 * @throws ExecutionException
-	 */
-	private IProject getSelectedProject(ExecutionEvent event)
-			throws ExecutionException {
-		IProject selectedProject = null;
+	private TreeParent createScatteringTree(List<ScatteringTraceabilityLink> aList) {
+		TreeParent root = new TreeParent(aList.get(0).getProject().getProjectName());
+		for (ScatteringTraceabilityLink link : aList) {
+			root.addChild(makeChildren(link.getModulevpLinks(), link.getFeature().getName()));
+		}
+		return root;
+	}
+	
+	private TreeParent makeChildren(List<ModuleToVariationPointsLink> moduleLinks, String featureName) {
+		TreeParent result = new TreeParent(featureName);
+		result.setType(TreeNodeType.FEATURE);
 
-		// get workbench window
-		IWorkbenchWindow window = HandlerUtil
-				.getActiveWorkbenchWindowChecked(event);
-		// set selection service
-		ISelectionService service = window.getSelectionService();
-		// set structured selection
-		IStructuredSelection structured = (IStructuredSelection) service
-				.getSelection();
-
-		Object objectSelected = structured.iterator().next();
-
-		selectedProject = ((IProject) objectSelected).getProject();
-
-		return selectedProject;
+		for (ModuleToVariationPointsLink mLink : moduleLinks) {
+			TreeParent father = new TreeParent(mLink.getModule().getName());
+			father.setFile(mLink.getModule());
+			father.setParent(result);
+			father.setType(TreeNodeType.MODULE);
+			
+			for (CCVariationPoint vp : mLink.getVps()) {
+				TreeObject child = new TreeObject(vp.toString());
+				child.setFile(mLink.getModule());
+				child.setLineMarker(vp.getLineNumber());
+				child.setParent(father);
+				child.setType(TreeNodeType.MACRO);
+				
+				father.addChild(child);
+			}
+			result.addChild(father);
+		}
+		return result;
 	}
 
-	public static TreeParent createScatteringTree(IProject selectedProject) {
+	private TreeParent createScatteringTree(IFeatureProject selectedProject) {
 		// gets the FeatureIDE project
-		IFeatureProject ifProj = CorePlugin.getFeatureProject(selectedProject);
-		TreeParent root = new TreeParent(ifProj.getProjectName());
+		TreeParent root = new TreeParent(selectedProject.getProjectName());
 
 		TreeParent featureNode;
 		IResource[] featureFolders = null;
 		IResource[] featureModules = null;
 		try {
 			// create feature nodes
-			featureFolders = ifProj.getSourceFolder().members();
+			featureFolders = selectedProject.getSourceFolder().members();
 		} catch (CoreException e) {
 			System.err.println(e.getMessage());
 		}
@@ -100,7 +87,7 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 				featureNode.setType(TreeNodeType.FEATURE);
 
 				try {
-					//  create modules nodes
+					// create modules nodes
 					// get modules from this feature
 					featureModules = getModules(((IFolder) featureFolders[i])
 							.members());
@@ -125,13 +112,11 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 		return root;
 	}
 
-	private static IResource[] getModules(IResource[] members) {
+	private IResource[] getModules(IResource[] members) {
 		List<IResource> result = new ArrayList<>();
 		for (int i = 0; i < members.length; i++) {
 			if (members[i] instanceof IFile) {
-				if (((IFile)members[i]).getFileExtension().equals("js")) {
-					result.add((IResource) members[i]);
-				}
+				result.add((IResource) members[i]);
 			} else if (members[i] instanceof IFolder) {
 				try {
 					result.addAll(new ArrayList<IResource>(
@@ -144,9 +129,9 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 				continue;
 
 		}
-		
+
 		IResource[] resources = new IResource[result.size()];
-				int i = 0;
+		int i = 0;
 		for (IResource iResource : result) {
 			resources[i] = iResource;
 			i++;
@@ -154,22 +139,21 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 		return resources;
 	}
 
-	private static TreeParent lookForChildren(IFile module) {
+	private TreeParent lookForChildren(IFile module) {
 		TreeParent father = new TreeParent(module.getName());
 		father.setType(TreeNodeType.MODULE);
 		father.setFile(module);
-		
+
 		List<CCVariationPoint> vps = null;
 		try {
-			JavaScriptParser p = new JavaScriptParser();
-			vps = p.parse(module);
+			vps = new JavaScriptParser().parse(module);
 		} catch (PluginException e) {
 			System.err.println(e.getMessage());
 		}
 		for (CCVariationPoint ccVariationPoint : vps) {
 			// create macro nodes
-			TreeObject leaf = new TreeObject(formatVPDeclaration(ccVariationPoint
-					.getTokens()));
+			TreeObject leaf = new TreeObject(
+					formatVPDeclaration(ccVariationPoint.getTokens()));
 			leaf.setFile(module);
 			leaf.setLineMarker(ccVariationPoint.getLineNumber());
 			father.addChild(leaf);
@@ -177,12 +161,11 @@ public class ShowInScatteringTreeViewHandler extends AbstractHandler {
 		return father;
 	}
 
-	private static String formatVPDeclaration(List<Token> tokens) {
+	private  String formatVPDeclaration(List<Token> tokens) {
 		String declaration = "";
 		for (Token token : tokens) {
 			declaration += token.getValue() + " ";
 		}
 		return declaration;
 	}
-
 }

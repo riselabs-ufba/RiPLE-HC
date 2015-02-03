@@ -18,6 +18,14 @@
             id="br.com.rise.featurejs.ui.views.ScatteringTreeView"
             name="Scattering Tree">
       </view>
+      <view
+            category="br.com.reconcavo.featurejs"
+            class="br.com.rise.featurejs.ui.views.FeatureInteractionsView"
+            icon="icons/hide_macros.gif"
+            id="br.com.rise.featurejs.ui.view.FeatureInteractions"
+            name="Feature Interactions"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">

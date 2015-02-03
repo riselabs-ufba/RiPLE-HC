@@ -8,6 +8,8 @@ import org.eclipse.core.commands.NotEnabledException;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -25,7 +27,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.DrillDownAdapter;
@@ -36,12 +40,14 @@ import org.eclipse.ui.part.ViewPart;
 import br.com.rise.featurejs.ui.FeatureJSUIPlugin;
 import br.com.rise.featurejs.ui.actions.ScatteringTreeUpdateAction;
 import br.com.rise.featurejs.ui.handlers.ShowInScatteringTreeViewHandler;
+import br.com.rise.featurejs.ui.handlers.WorkspaceChangeHandler;
+import br.com.rise.featurejs.ui.helpers.managers.ScatteringTreeManager;
 import br.com.rise.featurejs.ui.model.TreeObject;
 import br.com.rise.featurejs.ui.model.TreeParent;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeFilter;
-import br.com.rise.featurejs.ui.views.components.ScatteringTreeManager;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewContentProvider;
 import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewLabelProvider;
+import de.ovgu.featureide.core.CorePlugin;
 
 /**
  * This class show the scattering of a given project.
@@ -49,7 +55,7 @@ import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewLabelProvider
  */
 
 public class ScatteringTreeView extends ViewPart implements IShowInTarget,
-		PropertyChangeListener {
+		PropertyChangeListener{
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -62,6 +68,20 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	private Action action2;
 	private ScatteringTreeFilter filter;
 
+//	private IWorkspace workspace;
+//	private WorkspaceChangeHandler wListener;
+	
+//	ISelectionListener pListener = new ISelectionListener() {
+//        public void selectionChanged(IWorkbenchPart part, ISelection sel) {
+//           if (!(sel instanceof IStructuredSelection))
+//              return;
+//           IStructuredSelection ss = (IStructuredSelection) sel;
+//           Object o = ss.getFirstElement();
+//           if (o instanceof IProject)
+//              wListener.setTargetProject(CorePlugin.getFeatureProject((IProject) o));
+//        }
+//     };
+
 	class NameSorter extends ViewerSorter {
 	}
 
@@ -69,7 +89,6 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	 * The constructor.
 	 */
 	public ScatteringTreeView() {
-		ScatteringTreeManager.getInstance().addChangeListener(this);
 	}
 
 	/**
@@ -77,6 +96,11 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	 * it.
 	 */
 	public void createPartControl(Composite parent) {
+		ScatteringTreeManager.getInstance().addChangeListener(this);
+//		workspace = ResourcesPlugin.getWorkspace();
+//		wListener = new WorkspaceChangeHandler();
+// TODO		workspace.addResourceChangeListener(wListener);
+
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		drillDownAdapter = new DrillDownAdapter(viewer);
 		this.filter = new ScatteringTreeFilter();
@@ -85,8 +109,11 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 		viewer.setLabelProvider(new ScatteringTreeViewLabelProvider());
 		viewer.setSorter(new NameSorter());
 
+		// register this viewer as a provider of selection
 		getSite().setSelectionProvider(viewer);
 
+//		getSite().getPage().addSelectionListener(pListener);
+		getSite().getPage().addSelectionListener(WorkspaceChangeHandler.getInstance());
 		// Create the help context id for the viewer's control
 		PlatformUI
 				.getWorkbench()
@@ -240,6 +267,13 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 			newInput = (TreeParent) evt.getNewValue();
 		}
 		this.viewer.setInput(newInput);
+	}
+	
+	@Override
+	public void dispose(){
+//		workspace.removeResourceChangeListener(wListener);
+//		getSite().getPage().removeSelectionListener(pListener);
+		super.dispose();
 	}
 
 }

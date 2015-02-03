@@ -6,6 +6,10 @@ package br.com.rise.featurejs.ui.actions;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.NotEnabledException;
+import org.eclipse.core.commands.NotHandledException;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -16,10 +20,10 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.handlers.IHandlerService;
 
 import br.com.rise.featurejs.ui.FeatureJSUIPlugin;
 import br.com.rise.featurejs.ui.views.ScatteringTreeView;
-import br.com.rise.featurejs.ui.views.components.ScatteringTreeViewContentProvider;
 
 /**
  * @author Alcemir Santos
@@ -34,15 +38,21 @@ public class ScatteringTreeUpdateAction extends Action {
 	}
 
 	public void run() {
-		System.out.println("ScatteringTreeUpdateAction.run()");
 
+		IHandlerService handlerService = (IHandlerService) 
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(ScatteringTreeView.ID).getSite()
+				.getService(IHandlerService.class);
 		try {
-			System.out.println(askByProject().getName());
-		} catch (CoreException e) {
-			System.err.println(e.getMessage());
+			handlerService
+					.executeCommand(
+							"br.com.rise.featurejs.ui.command.ShowInScatteringTreeView",
+							null);
+		} catch (ExecutionException | NotDefinedException
+				| NotEnabledException | NotHandledException e) {
+			e.printStackTrace();
 		}
 		
-		List l = createViewInput(askByProject());
+//		List l = createViewInput(askByProject());
 		
 	}
 

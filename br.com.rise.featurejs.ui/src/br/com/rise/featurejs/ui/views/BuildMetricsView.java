@@ -60,7 +60,6 @@ public class BuildMetricsView extends ViewPart {
 	 
 	class ViewContentProvider implements IStructuredContentProvider, PropertyChangeListener {
 		public ViewContentProvider(){
-			FeatureJsComposer.addChangeListener(this);
 		}
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
