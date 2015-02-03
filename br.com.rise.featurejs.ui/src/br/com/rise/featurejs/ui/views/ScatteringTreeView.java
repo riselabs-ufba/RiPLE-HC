@@ -69,18 +69,18 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	private ScatteringTreeFilter filter;
 
 //	private IWorkspace workspace;
-//	private WorkspaceChangeHandler wListener;
+	private WorkspaceChangeHandler wHandler;
 	
-//	ISelectionListener pListener = new ISelectionListener() {
-//        public void selectionChanged(IWorkbenchPart part, ISelection sel) {
-//           if (!(sel instanceof IStructuredSelection))
-//              return;
-//           IStructuredSelection ss = (IStructuredSelection) sel;
-//           Object o = ss.getFirstElement();
-//           if (o instanceof IProject)
-//              wListener.setTargetProject(CorePlugin.getFeatureProject((IProject) o));
-//        }
-//     };
+	ISelectionListener pListener = new ISelectionListener() {
+        public void selectionChanged(IWorkbenchPart part, ISelection sel) {
+           if (!(sel instanceof IStructuredSelection))
+              return;
+           IStructuredSelection ss = (IStructuredSelection) sel;
+           Object o = ss.getFirstElement();
+           if (o instanceof IProject)
+              wHandler.getInstance().setTargetProject(CorePlugin.getFeatureProject((IProject) o));
+        }
+     };
 
 	class NameSorter extends ViewerSorter {
 	}
@@ -89,6 +89,7 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	 * The constructor.
 	 */
 	public ScatteringTreeView() {
+		ScatteringTreeManager.getInstance().addChangeListener(this);
 	}
 
 	/**
@@ -96,11 +97,11 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	 * it.
 	 */
 	public void createPartControl(Composite parent) {
-		ScatteringTreeManager.getInstance().addChangeListener(this);
 //		workspace = ResourcesPlugin.getWorkspace();
 //		wListener = new WorkspaceChangeHandler();
 // TODO		workspace.addResourceChangeListener(wListener);
 
+		getSite().getPage().addSelectionListener(pListener);
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		drillDownAdapter = new DrillDownAdapter(viewer);
 		this.filter = new ScatteringTreeFilter();
@@ -113,7 +114,6 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 		getSite().setSelectionProvider(viewer);
 
 //		getSite().getPage().addSelectionListener(pListener);
-		getSite().getPage().addSelectionListener(WorkspaceChangeHandler.getInstance());
 		// Create the help context id for the viewer's control
 		PlatformUI
 				.getWorkbench()

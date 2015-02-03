@@ -18,12 +18,14 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.gef4.zest.core.widgets.Graph;
 import org.eclipse.gef4.zest.core.widgets.GraphConnection;
 import org.eclipse.gef4.zest.core.widgets.GraphNode;
 import org.eclipse.gef4.zest.core.widgets.ZestStyles;
 import org.eclipse.gef4.zest.layouts.LayoutStyles;
 import org.eclipse.gef4.zest.layouts.algorithms.SpringLayoutAlgorithm;
+import org.eclipse.gef4.zest.layouts.algorithms.TreeLayoutAlgorithm;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
@@ -56,65 +58,51 @@ import de.ovgu.featureide.core.IFeatureProject;
 public class FeatureInteractionsView extends ViewPart implements
 		PropertyChangeListener {
 	private Composite parent;
-
+	private Composite myContents;
+	
 	private IFeatureProject currentProject;
 
 	private static TabFolder tabFolder;
 	private Map<String, TabItem> configTabs;
 
-//	private IWorkspace workspace;
-//	private WorkspaceChangeHandler wListener;
+	private WorkspaceChangeHandler wHandler;
 
-//	ISelectionListener pListener = new ISelectionListener() {
-//        public void selectionChanged(IWorkbenchPart part, ISelection sel) {
-//           if (!(sel instanceof IStructuredSelection))
-//              return;
-//           IStructuredSelection ss = (IStructuredSelection) sel;
-//           Object o = ss.getFirstElement();
-//           if (o instanceof IProject){
-//        	   IFeatureProject f = CorePlugin.getFeatureProject((IProject) o);
-//        	   currentProject = f;
-//        	   wListener.setTargetProject(f);
-//           }
-//           
-//        }
-//     };
+	ISelectionListener pListener = new ISelectionListener() {
+        public void selectionChanged(IWorkbenchPart part, ISelection sel) {
+           if (!(sel instanceof IStructuredSelection))
+              return;
+           IStructuredSelection ss = (IStructuredSelection) sel;
+           Object o = ss.getFirstElement();
+           if (o instanceof IProject){
+        	   IFeatureProject f = CorePlugin.getFeatureProject((IProject) o);
+        	   currentProject = f;
+        	   wHandler.getInstance().setTargetProject(f);
+           }
+        }
+     };
      
+	public FeatureInteractionsView(){
+		ScatteringTraceabilityLinksManager.getInstance().addChangeListener(this);
+	}
+	
 	public void createPartControl(Composite parent) {
 		this.parent = parent;
-//		wListener = new WorkspaceChangeHandler();
-//		workspace = ResourcesPlugin.getWorkspace();
-//		workspace.addResourceChangeListener(wListener);
-		getSite().getPage().addSelectionListener(WorkspaceChangeHandler.getInstance());
-
-//		currentProject = wListener.getCurrentProject();
-		configTabs = new HashMap<String, TabItem>();
-
-		
-//		if (currentProject == null) {
-//			try {
-//				currentProject = CorePlugin.getFeatureProject(
-//						WorkspaceChangeHandler.askByProject());
-//			} catch (CoreException e) {
-//				e.printStackTrace();
-//			}
-//
-//		}
-//		wListener.setTargetProject(currentProject);
+		getSite().getPage().addSelectionListener(pListener);
 		
 		hookProjectTab();
 		hookConfigTabs();
 
-		// InteractionGraphsManager.getInstance().addChangeListener(this);
-		ScatteringTraceabilityLinksManager.getInstance()
-				.addChangeListener(this);
+		// TODO try this... InteractionGraphsManager.getInstance().addChangeListener(this);
 	}
 	
 	/**
 	 * creates the tab for the project
 	 */
 	private void hookProjectTab() {
-		tabFolder = new TabFolder(this.parent, SWT.NONE);
+		myContents = new Composite(parent, SWT.NONE);
+		myContents.setLayout(new FillLayout(SWT.VERTICAL));
+		myContents.setLayoutData(new GridData(GridData.FILL_BOTH));
+		tabFolder = new TabFolder(myContents, SWT.NONE);
 		TabItem pTab = new TabItem(tabFolder, SWT.NONE);
 		pTab.setText("Project Interaction");
 		pTab.setToolTipText("Show the interaction of the entire project.");
@@ -137,6 +125,7 @@ public class FeatureInteractionsView extends ViewPart implements
 	 * creates the tabs for the products
 	 */
 	private void hookConfigTabs() {
+		configTabs = new HashMap<String, TabItem>();
 		if (currentProject == null) 
 			return;
 		
@@ -168,7 +157,6 @@ public class FeatureInteractionsView extends ViewPart implements
 	 * @return
 	 */
 	private Control getTabControl(IResource iResource) {
-		
 		return  new InteractionsGraphHelper().buildGraph(ScatteringTraceabilityLinksManager
 						.getInstance().getObject(currentProject.getProjectName()), iResource);
 	}
@@ -180,51 +168,10 @@ public class FeatureInteractionsView extends ViewPart implements
 	private Control createEmptyControl() {
 		Composite composite = new Composite(tabFolder, SWT.NONE);
 		composite.setLayout(new FillLayout(SWT.VERTICAL));
-		Graph graph = new Graph(composite, SWT.NONE);
+//		Graph graph = new Graph(composite, SWT.NONE);
 		return composite;
 	}
 	
-	
-	private void createDummyGraph(Composite parent) {
-		// Graph will hold all other objects
-		Graph graph = new Graph(parent, SWT.NONE);
-		// now a few nodes
-		GraphNode node1 = new GraphNode(graph, SWT.NONE, "Jim");
-		GraphNode node2 = new GraphNode(graph, SWT.NONE, "Jack");
-		GraphNode node3 = new GraphNode(graph, SWT.NONE, "Joe");
-		GraphNode node4 = new GraphNode(graph, SWT.NONE, "Bill");
-		// Lets have a directed connection
-		new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, node1,
-				node2);
-		// Lets have a dotted graph connection
-		new GraphConnection(graph, ZestStyles.CONNECTIONS_DOT, node2, node3);
-		// Standard connection
-		new GraphConnection(graph, SWT.NONE, node3, node1);
-		// Change line color and line width
-		GraphConnection graphConnection = new GraphConnection(graph, SWT.NONE,
-				node1, node4);
-		graphConnection.changeLineColor(parent.getDisplay().getSystemColor(
-				SWT.COLOR_GREEN));
-		// Also set a text
-		graphConnection.setText("This is a text");
-		graphConnection.setHighlightColor(parent.getDisplay().getSystemColor(
-				SWT.COLOR_RED));
-		graphConnection.setLineWidth(3);
-
-		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(
-				LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
-		// Selection listener on graphConnect or GraphNode is not supported
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=236528
-		graph.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				System.out.println(e);
-			}
-
-		});
-	}
-
-
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
@@ -241,8 +188,13 @@ public class FeatureInteractionsView extends ViewPart implements
 
 		this.currentProject = links.get(0).getProject();
 
+		disposeTabFolder();
+		
 		hookProjectTab();
 		hookConfigTabs();
+//		this.myContents.layout(true);
+		this.parent.layout();
+		this.parent.pack();
 //		InteractionsGraphHelper helper = new InteractionsGraphHelper();
 //		helper.buildProjectGraph(links);
 //		try {
@@ -255,6 +207,10 @@ public class FeatureInteractionsView extends ViewPart implements
 //			e.printStackTrace();
 //		}
 
+	}
+
+	private void disposeTabFolder() {
+		myContents.dispose();
 	}
 
 	class InteractionsGraphHelper {
@@ -291,7 +247,8 @@ public class FeatureInteractionsView extends ViewPart implements
 			composite = getComposite();
 			// Graph will hold all other objects
 			g = new Graph(composite, SWT.NONE);
-
+			g.setLayoutAlgorithm(new SpringLayoutAlgorithm(), true);
+			
 			List<FeatureAssociation> associations = getAssociations(links);
 
 			// now a few nodes

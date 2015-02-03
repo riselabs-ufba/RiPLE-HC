@@ -20,24 +20,17 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
-import br.com.rise.featurejs.ui.helpers.managers.InteractionGraphsManager;
 import br.com.rise.featurejs.ui.helpers.managers.ScatteringTraceabilityLinksManager;
-import br.com.rise.featurejs.ui.helpers.managers.ScatteringTreeManager;
 import br.com.rise.featurejs.ui.model.ModuleToVariationPointsLink;
 import br.com.rise.featurejs.ui.model.ScatteringTraceabilityLink;
 import br.com.riselabs.vparser.exceptions.PluginException;
 import br.com.riselabs.vparser.parsers.JavaScriptParser;
-import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
 
 /**
@@ -46,7 +39,7 @@ import de.ovgu.featureide.core.IFeatureProject;
  * @author Alcemir Santos
  * 
  */
-public class WorkspaceChangeHandler implements IResourceChangeListener, ISelectionListener {
+public class WorkspaceChangeHandler implements IResourceChangeListener {
 
 	private static WorkspaceChangeHandler instance;
 
@@ -57,55 +50,43 @@ public class WorkspaceChangeHandler implements IResourceChangeListener, ISelecti
 	private WorkspaceChangeHandler() {
 	}
 
-	public static WorkspaceChangeHandler getInstance(){
-		if(instance == null)
+	public static WorkspaceChangeHandler getInstance() {
+		if (instance == null)
 			instance = new WorkspaceChangeHandler();
 		return instance;
 	}
-	
+
 	public void setTargetProject(IFeatureProject targetProject) {
 		init(targetProject);
+		if (preCheck())
+			return;
 		treatProject();
 	}
 
-	private void init(IFeatureProject aProject){
+	private void init(IFeatureProject aProject) {
 		this.targetProject = aProject;
 		FEATURE_PATH = this.targetProject.getSourceFolder().getFullPath();
 		CONFIGS_PATH = this.targetProject.getConfigFolder().getFullPath();
 	}
-	
-	public IFeatureProject getCurrentProject(){
+
+	public IFeatureProject getCurrentProject() {
 		return this.targetProject;
 	}
-	
-//	ISelectionListener pListener = new ISelectionListener() {
-		public void selectionChanged(IWorkbenchPart part, ISelection sel) {
-			if (!(sel instanceof IStructuredSelection))
-				return;
-			IStructuredSelection ss = (IStructuredSelection) sel;
-			Object o = ss.getFirstElement();
-			if (o instanceof IProject) {
-				init(CorePlugin.getFeatureProject((IProject) o));
-				String pName = targetProject.getProjectName();
 
-				// if it exists do not treat project twice
-				if (ScatteringTreeManager.getInstance().exists(pName))
-					ScatteringTreeManager.getInstance().setCurrent(pName);
-				// if it exists do not treat project twice
-				if (InteractionGraphsManager.getInstance().exists(pName))
-					InteractionGraphsManager.getInstance().setCurrent(pName);
-				// if it exists do not treat project twice
-				if (ScatteringTraceabilityLinksManager.getInstance().exists(pName))
-					ScatteringTraceabilityLinksManager.getInstance().setCurrent(pName);
-				
-				treatProject();
-			}
-			if (o instanceof IFeatureProject) {
-				System.out.println("WorkspaceChangeHandler.enclosing_method()");
-			}
+	/**
+	 * 
+	 */
+	private boolean preCheck() {
+		String pName = targetProject.getProjectName();
+		// if it exists do not treat project twice
+		if (ScatteringTraceabilityLinksManager.getInstance().exists(pName)) {
+			ScatteringTraceabilityLinksManager.getInstance().setCurrent(pName);
+			return true;
 		}
+		return false;
+	}
 
-//	};
+	// };
 
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
@@ -115,19 +96,22 @@ public class WorkspaceChangeHandler implements IResourceChangeListener, ISelecti
 			break;
 		case IResourceChangeEvent.POST_CHANGE:
 
-//			ArrayList<IResource> resourcesChanged = new ArrayList<IResource>();
-//			final String jsType = "js";
-//			final String configType = "config";
-//
-//			// get javascript resources that may have changed
-//			resourcesChanged = getResourcesChanged(event, FEATURE_PATH, jsType);
-//
-//			updateLinks(resourcesChanged, jsType);
-//
-//			// get configuration file that may have changed
-//			resourcesChanged = getResourcesChanged(event, CONFIGS_PATH,	configType);
-//
-//			updateLinks(resourcesChanged, configType);
+			// ArrayList<IResource> resourcesChanged = new
+			// ArrayList<IResource>();
+			// final String jsType = "js";
+			// final String configType = "config";
+			//
+			// // get javascript resources that may have changed
+			// resourcesChanged = getResourcesChanged(event, FEATURE_PATH,
+			// jsType);
+			//
+			// updateLinks(resourcesChanged, jsType);
+			//
+			// // get configuration file that may have changed
+			// resourcesChanged = getResourcesChanged(event, CONFIGS_PATH,
+			// configType);
+			//
+			// updateLinks(resourcesChanged, configType);
 			break;
 		case IResourceChangeEvent.PRE_BUILD:
 			break;
@@ -153,16 +137,15 @@ public class WorkspaceChangeHandler implements IResourceChangeListener, ISelecti
 		if (resourcesChanged != null && resourcesChanged.size() > 0) {
 
 			links = treatDeltaResources(resourcesChanged, fileType);
-			if(links != null)
+			if (links != null)
 				// post this up ate to the links manager
 				ScatteringTraceabilityLinksManager.getInstance().addObject(
-					resourcesChanged.get(0).getProject().getName(), links);
+						resourcesChanged.get(0).getProject().getName(), links);
 		}
 	}
 
 	private void treatProject() {
 		List<ScatteringTraceabilityLink> links = new ArrayList<ScatteringTraceabilityLink>();
-		// TODO build links from the the given project
 		IResource[] featuresFolder = null;
 		try {
 			featuresFolder = targetProject.getSourceFolder().members();
@@ -196,18 +179,18 @@ public class WorkspaceChangeHandler implements IResourceChangeListener, ISelecti
 		if (f == null)
 			return null;
 		try {
-		for (IResource r : f.members()) {
-			if (r instanceof IFile) {
-				if (((IFile) r).getFileExtension().equals("js")) {
-					result.add(handleJSModule((IFile) r));
-				}
-			} else if (r instanceof IFolder) {
+			for (IResource r : f.members()) {
+				if (r instanceof IFile) {
+					if (((IFile) r).getFileExtension().equals("js")) {
+						result.add(handleJSModule((IFile) r));
+					}
+				} else if (r instanceof IFolder) {
 					result.addAll(new ArrayList<ModuleToVariationPointsLink>(
 							getmoduleVPLinks(r)));
-			} else
-				continue;
+				} else
+					continue;
 
-		}
+			}
 		} catch (CoreException e) {
 			System.err.println(e.getMessage());
 		}
@@ -311,11 +294,9 @@ public class WorkspaceChangeHandler implements IResourceChangeListener, ISelecti
 			IProject aProject = projects[i];
 
 			if (aProject.isOpen())
+				// only opened featureide projects to the list
 				if (aProject
 						.isNatureEnabled("de.ovgu.featureide.core.featureProjectNature")) {
-					// if(aProject.isNatureEnabled("br.com.reconcavo.featurejs.FeatureJsComposer"))
-					// {
-					// only opened featurejs projects to the list
 					projectsMap.put(aProject.getName(), aProject);
 				}
 		}
