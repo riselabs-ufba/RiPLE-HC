@@ -5,51 +5,43 @@ package br.com.rise.featurejs.ui.views;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.gef4.zest.core.widgets.Graph;
-import org.eclipse.gef4.zest.core.widgets.GraphConnection;
-import org.eclipse.gef4.zest.core.widgets.GraphNode;
-import org.eclipse.gef4.zest.core.widgets.ZestStyles;
-import org.eclipse.gef4.zest.layouts.LayoutStyles;
-import org.eclipse.gef4.zest.layouts.algorithms.SpringLayoutAlgorithm;
-import org.eclipse.gef4.zest.layouts.algorithms.TreeLayoutAlgorithm;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.zest.core.viewers.AbstractZoomableViewer;
+import org.eclipse.zest.core.viewers.GraphViewer;
+import org.eclipse.zest.core.viewers.IZoomableWorkbenchPart;
+import org.eclipse.zest.core.viewers.ZoomContributionViewItem;
+import org.eclipse.zest.layouts.LayoutAlgorithm;
+import org.eclipse.zest.layouts.LayoutStyles;
+import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
+import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
+import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 
+import br.com.rise.featurejs.ui.FeatureJSUIPlugin;
 import br.com.rise.featurejs.ui.handlers.WorkspaceChangeHandler;
 import br.com.rise.featurejs.ui.helpers.managers.ScatteringTraceabilityLinksManager;
-import br.com.rise.featurejs.ui.model.FeatureAssociation;
-import br.com.rise.featurejs.ui.model.ModuleToVariationPointsLink;
+import br.com.rise.featurejs.ui.model.NodeModelContentProvider;
 import br.com.rise.featurejs.ui.model.ScatteringTraceabilityLink;
-import br.com.riselabs.vparser.beans.CCVariationPoint;
-import br.com.riselabs.vparser.lexer.beans.Token;
-import br.com.riselabs.vparser.lexer.enums.TokenType;
-import de.ovgu.featureide.core.CorePlugin;
+import br.com.rise.featurejs.ui.views.components.ZestLabelProvider;
+import br.com.rise.featurejs.ui.views.components.ZestNodeContentProvider;
 import de.ovgu.featureide.core.IFeatureProject;
 
 /**
@@ -57,299 +49,177 @@ import de.ovgu.featureide.core.IFeatureProject;
  * 
  */
 public class FeatureInteractionsView extends ViewPart implements
-		PropertyChangeListener {
-	private Composite parent;
-	private Composite myContents;
-	
+IZoomableWorkbenchPart, PropertyChangeListener {
+
+	/**
+	 * The ID of the view as specified by the extension.
+	 */
+	public static final String ID = "br.com.rise.featurejs.ui.views.ScatteringTreeView";
+
+	private Composite parentContainer;
+	private Map<TabItem, GraphViewer> tabViewers;
+
+	private TabFolder folder;
+
 	private IFeatureProject currentProject;
 
-	private static TabFolder tabFolder;
-	private Map<String, TabItem> configTabs;
-
-     
-	public FeatureInteractionsView(){
-		ScatteringTraceabilityLinksManager.getInstance().addChangeListener(this);
+	public FeatureInteractionsView() {
+		ScatteringTraceabilityLinksManager.getInstance()
+				.addChangeListener(this);
 	}
-	
+
 	public void createPartControl(Composite parent) {
-		this.parent = parent;
-		
-		hookProjectTab();
-		hookConfigTabs();
-
-		// TODO try this... InteractionGraphsManager.getInstance().addChangeListener(this);
-	}
-	
-	/**
-	 * creates the tab for the project
-	 */
-	private void hookProjectTab() {
-		myContents = new Composite(parent, SWT.NONE);
-		myContents.setLayout(new FillLayout(SWT.VERTICAL));
-		myContents.setLayoutData(new GridData(GridData.FILL_BOTH));
-		tabFolder = new TabFolder(myContents, SWT.NONE);
-		TabItem pTab = new TabItem(tabFolder, SWT.NONE);
-		pTab.setText("Project Interaction");
-		pTab.setToolTipText("Show the interaction of the entire project.");
-		pTab.setControl(getProjectTabControl());
-	}
-	
-	/**
-	 * returns the graph to show in the project tab 
-	 * @return
-	 */
-	private Control getProjectTabControl() {
-		if(currentProject == null)
-			return createEmptyControl();
-		return new InteractionsGraphHelper()
-		.buildProjectGraph(ScatteringTraceabilityLinksManager
-				.getInstance().getObject(currentProject.getProjectName()));
-	}
-	
-	/**
-	 * creates the tabs for the products
-	 */
-	private void hookConfigTabs() {
-		configTabs = new HashMap<String, TabItem>();
-		if (currentProject == null) 
-			return;
-		
-		IResource[] configFiles = null;
-		try {
-			configFiles = currentProject.getConfigFolder().members();
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-
-		int count = 1;
-		for (IResource cFile : configFiles) {
-			if(!cFile.getFileExtension().equals("config"))
-				continue;
-			// Create each tab and set its text, tool tip text,
-			// image, and control
-			TabItem aTab = new TabItem(tabFolder, SWT.NONE);
-			aTab.setText("Product "+count++);
-			aTab.setToolTipText("This graph show the existing interaction in the "
-					+ cFile.getName() + " file.");
-			aTab.setControl(getTabControl(cFile));
-			configTabs.put(cFile.getName(), aTab);
-		}
+		parentContainer = getFillLayoutContainer(parent);
+		parentContainer.setBackground(new Color(Display.getCurrent(), new RGB(240, 240, 240)));
+		Label label = new Label(parentContainer, SWT.BOLD);
+		label.setText("Nothing to show yet.\nYou need to select a Feature JS project.");
 	}
 
-	/**
-	 * returns the graph to show in the products tab
-	 * @param iResource
-	 * @return
-	 */
-	private Control getTabControl(IResource iResource) {
-		return  new InteractionsGraphHelper().buildGraph(ScatteringTraceabilityLinksManager
-						.getInstance().getObject(currentProject.getProjectName()), iResource);
+	private LayoutAlgorithm setLayout() {
+		LayoutAlgorithm layout;
+		// TODO create a toggle layout action.
+		 layout = new
+		 SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
+//		layout = new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
+//		// layout = new
+//		// GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
+//		// layout = new
+//		// HorizontalTreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
+//		 layout = new
+//		 RadialLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
+		return layout;
+
 	}
 
-	/**
-	 * used in case that the project isn't initialized yet.
-	 * @return
-	 */
-	private Control createEmptyControl() {
-		Composite composite = new Composite(tabFolder, SWT.NONE);
-		composite.setLayout(new FillLayout(SWT.VERTICAL));
-//		Graph graph = new Graph(composite, SWT.NONE);
-		return composite;
-	}
-	
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
 	public void setFocus() {
 	}
 
+	private void fillToolBar() {
+		ZoomContributionViewItem toolbarZoomContributionViewItem = new ZoomContributionViewItem(
+				this);
+		IActionBars bars = getViewSite().getActionBars();
+		bars.getMenuManager().add(toolbarZoomContributionViewItem);
+	}
+
+	@Override
+	public AbstractZoomableViewer getZoomableViewer() {
+		return tabViewers.get(folder.getItem(folder.getSelectionIndex()));
+	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		List<ScatteringTraceabilityLink> links = null;
-		Object o = evt.getNewValue();
-		if (o instanceof List<?>)
-			links = (List<ScatteringTraceabilityLink>) o;
+		if (evt.getNewValue() instanceof List<?>)
+			links = (List<ScatteringTraceabilityLink>) evt.getNewValue();
 
-		this.currentProject = WorkspaceChangeHandler.getInstance().getCurrentProject();
-
-		disposeTabFolder();
-		
-		hookProjectTab();
-		hookConfigTabs();
-//		this.myContents.layout(true);
-		this.parent.layout();
-		this.parent.pack();
-//		InteractionsGraphHelper helper = new InteractionsGraphHelper();
-//		helper.buildProjectGraph(links);
-//		try {
-//			for (IResource configFile: this.currentProject.getConfigFolder().members()) {
-//				if(!configFile.getFileExtension().equals("config"))
-//					continue;
-//				helper.buildGraph(links, configFile);
-//			}
-//		} catch (CoreException e) {
-//			e.printStackTrace();
-//		}
-
-	}
-
-	private void disposeTabFolder() {
-		myContents.dispose();
-	}
-
-	class InteractionsGraphHelper {
-
-		Composite composite;
-		Graph g;
-		Map<String, GraphNode> nodes = new HashMap<String, GraphNode>();
-
-		/**
-		 * Builds the graph for a given config file
-		 * 
-		 * @param links
-		 * @param iResource
-		 * @return
-		 */
-		public Control buildGraph(List<ScatteringTraceabilityLink> links,
-				IResource iResource) {
-			List<String> featuresSelected = getSelectedFeatures(iResource);
-			List<ScatteringTraceabilityLink> newlist = new ArrayList<>();
-			for (ScatteringTraceabilityLink link : links) {
-				if( !featuresSelected.contains(link.getFeature().getName()) )
-					newlist.add(link);
-			}
-			return buildProjectGraph(newlist);
+		IResource[] configFiles = null;
+		try {
+			if (currentProject == null)
+				currentProject = WorkspaceChangeHandler.getInstance()
+						.getCurrentProject();
+			configFiles = currentProject.getConfigFolder().members();
+		} catch (CoreException e) {
+			FeatureJSUIPlugin.log("Configuration files not found", e);
 		}
 
-		/**
-		 * Builds a graph to the project
-		 * 
-		 * @param links
-		 * @return
-		 */
-		public Control buildProjectGraph(List<ScatteringTraceabilityLink> links) {
-			composite = getComposite();
-			// Graph will hold all other objects
-			g = new Graph(composite, SWT.NONE);
-			g.setLayoutAlgorithm(new SpringLayoutAlgorithm(), true);
+		if (configFiles == null || links == null)
+			return;
+
+		if (tabViewers == null) {
+			initView(links, configFiles);
+			this.parentContainer.layout();
+			this.parentContainer.pack();
+			this.parentContainer.redraw();
+			this.parentContainer.update();
+		} else
+			setInput(links, configFiles);
+
+	}
+
+	public void setInput(List<ScatteringTraceabilityLink> newInput,
+			IResource[] configFiles) {
+
+		int i = 0;
+		for (Entry<TabItem, GraphViewer> e : tabViewers.entrySet()) {
+			if (!e.getKey().getText().toLowerCase().contains("product")) {
+				e.getValue().setInput(
+						new NodeModelContentProvider(newInput, null));
+				e.getValue().applyLayout();
+				e.getValue().refresh();
+				continue;
+			}
+
+			e.getValue().setInput(
+					new NodeModelContentProvider(newInput, configFiles[i++]));
+			e.getValue().applyLayout();
+			e.getValue().refresh();
+		}
+	}
+
+	public void initView(List<ScatteringTraceabilityLink> links,
+			IResource[] configFiles) {
+		disposeChildren(parentContainer);
+		folder = new TabFolder(parentContainer, SWT.NONE);
+		List<TabItem> itens = new ArrayList<>();
+		tabViewers = new HashMap<TabItem, GraphViewer>();
+
+		TabItem projectTab = new TabItem(folder, SWT.NONE);
+		projectTab.setText("Overall interaction");
+		Composite container = getFillLayoutContainer(folder);
+		tabViewers.put(projectTab, addContentTo(container, links, null));
+		projectTab.setControl(container);
+
+		for (int i = 0; i < configFiles.length; i++) {
+			TabItem tab = new TabItem(folder, SWT.NONE);
+			tab.setText("Product " + (i + 1));
+			tab.setToolTipText("It shows the interactions of the "+configFiles[i].getName()+" product only.");
+			container = getFillLayoutContainer(folder);
+			tabViewers.put(tab, addContentTo(container, links, configFiles[i]));
+			tab.setControl(container);
 			
-			List<FeatureAssociation> associations = getAssociations(links);
-
-			// now a few nodes
-
-			for (FeatureAssociation link : associations) {
-				// create a node if it does not exists yet.
-				GraphNode from = getNode(link.getFeature());
-
-				// make associations
-				for (String s : link.getAssociations().keySet()) {
-					// create a node if it does not exists yet.
-					GraphNode to = getNode(s);
-
-					// Lets have a directed connection
-					String edgeLabel = String.valueOf(link.getAssociations()
-							.get(s));
-					GraphConnection con = getEdge(from, to, edgeLabel);
-				}
-
-			}
-
-			return composite;
+			itens.add(tab);
 		}
 
-		/**
-		 * return a node from the map of nodes
-		 * 
-		 * @param name
-		 * @return
-		 */
-		private GraphNode getNode(String name) {
-			if (!nodes.containsKey(name))
-				nodes.put(name, new GraphNode(g, SWT.NONE, name));
-			return nodes.get(name);
-		}
-
-		/**
-		 * creates a directed connection between two nodes with a given label.
-		 * 
-		 * @param from
-		 * @param to
-		 * @param label
-		 * @return
-		 */
-		private GraphConnection getEdge(GraphNode from, GraphNode to,
-				String label) {
-			GraphConnection con = new GraphConnection(g,
-					ZestStyles.CONNECTIONS_DIRECTED, from, to);
-			con.setText(label);
-			Font font = new Font(composite.getDisplay().getSystemFont()
-					.getDevice(), "lineFont", 15, 1);
-			con.setFont(font);
-			return con;
-		}
-
-		private List<FeatureAssociation> getAssociations(
-				List<ScatteringTraceabilityLink> links) {
-			List<FeatureAssociation> lAssociations = new ArrayList<FeatureAssociation>();
-			// para cada feature cria uma entrada no mapa
-			for (ScatteringTraceabilityLink link : links) {
-				FeatureAssociation anAssociation = new FeatureAssociation(link
-						.getFeature().getName());
-
-				// pra cada modulelink incrementa as associacoes
-				for (ModuleToVariationPointsLink mlink : link
-						.getModulevpLinks()) {
-					for (CCVariationPoint vp : mlink.getVps()) {
-						if (vp.isSingleVP()) {
-							anAssociation.add(getFeatureName(vp.getTokens()));
-						}
-					}
-
-				}
-				lAssociations.add(anAssociation);
-			}
-
-			return lAssociations;
-		}
-
-		private String getFeatureName(List<Token> tokens) {
-			for (Token token : tokens) {
-				if (token.getLexeme() != TokenType.TAG)
-					continue;
-				return token.getValue();
-			}
-			return null;
-		}
-
-		private Composite getComposite() {
-			Composite c = new Composite(tabFolder, SWT.NONE);
-			c.setLayout(new FillLayout(SWT.VERTICAL));
-			return c;
-		}
-
-		private List<String> getSelectedFeatures(IResource iResource) {
-			List<String> l = new ArrayList<>();
-			 try(BufferedReader br = new BufferedReader(new FileReader(iResource.getLocation().toOSString()))) {
-			        String line = br.readLine();
-
-			        while (line != null) {
-			           l.add(line);
-			           line = br.readLine();
-			        }
-			    } catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			
-			return l;
-		}
-
+		fillToolBar();
 	}
 
-	
+	/**
+	 * @param parent
+	 * @param links
+	 * @param configFile
+	 * @return GraphViewer
+	 */
+	private GraphViewer addContentTo(Composite parent,
+			List<ScatteringTraceabilityLink> links, IResource configFile) {
+		GraphViewer viewer = new GraphViewer(parent, SWT.BORDER);
+		viewer.setContentProvider(new ZestNodeContentProvider());
+		viewer.setLabelProvider(new ZestLabelProvider());
+		NodeModelContentProvider model = new NodeModelContentProvider(links,
+				configFile);
+		viewer.setInput(model);
+		LayoutAlgorithm layout = setLayout();
+		viewer.setLayoutAlgorithm(layout, true);
+		viewer.applyLayout();
+		return viewer;
+	}
+
+	private Composite getFillLayoutContainer(Composite parent) {
+		Composite container = new Composite(parent, SWT.NONE);
+		container.setLayout(new FillLayout(SWT.VERTICAL));
+		return container;
+	}
+
+	private void disposeChildren(Composite c) {
+		for (Control child : c.getChildren()) {
+			child.dispose();
+		}
+	}
+
 	@Override
-	public void dispose(){
+	public void dispose() {
 		super.dispose();
 	}
-
 }

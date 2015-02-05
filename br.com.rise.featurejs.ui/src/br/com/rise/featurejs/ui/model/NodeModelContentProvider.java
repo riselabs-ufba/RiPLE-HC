@@ -49,7 +49,7 @@ public class NodeModelContentProvider {
 		List<String> featuresSelected = getSelectedFeatures(iResource);
 		List<ScatteringTraceabilityLink> newlist = new ArrayList<>();
 		for (ScatteringTraceabilityLink link : links) {
-			if (!featuresSelected.contains(link.getFeature().getName()))
+			if (featuresSelected.contains(link.getFeature().getName()))
 				newlist.add(link);
 		}
 		this.links = newlist;
