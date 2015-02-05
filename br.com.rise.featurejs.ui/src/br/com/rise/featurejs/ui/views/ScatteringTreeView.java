@@ -55,7 +55,7 @@ import de.ovgu.featureide.core.CorePlugin;
  */
 
 public class ScatteringTreeView extends ViewPart implements IShowInTarget,
-		PropertyChangeListener{
+		PropertyChangeListener {
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -68,19 +68,22 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	private Action action2;
 	private ScatteringTreeFilter filter;
 
-//	private IWorkspace workspace;
-	private WorkspaceChangeHandler wHandler;
-	
 	ISelectionListener pListener = new ISelectionListener() {
-        public void selectionChanged(IWorkbenchPart part, ISelection sel) {
-           if (!(sel instanceof IStructuredSelection))
-              return;
-           IStructuredSelection ss = (IStructuredSelection) sel;
-           Object o = ss.getFirstElement();
-           if (o instanceof IProject)
-              wHandler.getInstance().setTargetProject(CorePlugin.getFeatureProject((IProject) o));
-        }
-     };
+		public void selectionChanged(IWorkbenchPart part, ISelection sel) {
+			if (!(sel instanceof IStructuredSelection))
+				return;
+			IStructuredSelection ss = (IStructuredSelection) sel;
+			Object o = ss.getFirstElement();
+			IProject proj = null;
+			if (o instanceof IProject)
+				proj = (IProject) o;
+			if (proj == null || !proj.isOpen() || CorePlugin.getFeatureProject(proj) == null)
+				return;
+
+			WorkspaceChangeHandler.getInstance().setTargetProject(
+					CorePlugin.getFeatureProject((IProject) o));
+		}
+	};
 
 	class NameSorter extends ViewerSorter {
 	}
@@ -97,23 +100,24 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 	 * it.
 	 */
 	public void createPartControl(Composite parent) {
-//		workspace = ResourcesPlugin.getWorkspace();
-//		wListener = new WorkspaceChangeHandler();
-// TODO		workspace.addResourceChangeListener(wListener);
+		// workspace = ResourcesPlugin.getWorkspace();
+		// wListener = new WorkspaceChangeHandler();
+		// TODO workspace.addResourceChangeListener(wListener);
 
 		getSite().getPage().addSelectionListener(pListener);
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		drillDownAdapter = new DrillDownAdapter(viewer);
 		this.filter = new ScatteringTreeFilter();
 		viewer.addFilter(this.filter);
-		viewer.setContentProvider(new ScatteringTreeViewContentProvider(this.filter));
+		viewer.setContentProvider(new ScatteringTreeViewContentProvider(
+				this.filter));
 		viewer.setLabelProvider(new ScatteringTreeViewLabelProvider());
 		viewer.setSorter(new NameSorter());
 
 		// register this viewer as a provider of selection
 		getSite().setSelectionProvider(viewer);
 
-//		getSite().getPage().addSelectionListener(pListener);
+		// getSite().getPage().addSelectionListener(pListener);
 		// Create the help context id for the viewer's control
 		PlatformUI
 				.getWorkbench()
@@ -177,14 +181,13 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 		updateTreeAction = new ScatteringTreeUpdateAction();
 
 		action2 = makeHideModularFeatureNodesAction();
-		
+
 	}
 
 	private Action makeHideModularFeatureNodesAction() {
 		String description = "Show Modular Features";
-		
-		Action action = new Action(description,
-				IAction.AS_CHECK_BOX) {
+
+		Action action = new Action(description, IAction.AS_CHECK_BOX) {
 
 			public void run() {
 				boolean oldState = ScatteringTreeView.this.filter
@@ -197,11 +200,12 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 				viewer.refresh();
 			}
 		};
-		
+
 		action.setText(description);
 		action.setToolTipText(description);
-		action.setImageDescriptor(FeatureJSUIPlugin.getImageDescriptor("filter.png"));
-		
+		action.setImageDescriptor(FeatureJSUIPlugin
+				.getImageDescriptor("filter.png"));
+
 		return action;
 	}
 
@@ -233,7 +237,6 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 			}
 		});
 	}
-
 
 	/**
 	 * Passing the focus request to the viewer's control.
@@ -268,11 +271,11 @@ public class ScatteringTreeView extends ViewPart implements IShowInTarget,
 		}
 		this.viewer.setInput(newInput);
 	}
-	
+
 	@Override
-	public void dispose(){
-//		workspace.removeResourceChangeListener(wListener);
-//		getSite().getPage().removeSelectionListener(pListener);
+	public void dispose() {
+		// workspace.removeResourceChangeListener(wListener);
+		// getSite().getPage().removeSelectionListener(pListener);
 		super.dispose();
 	}
 

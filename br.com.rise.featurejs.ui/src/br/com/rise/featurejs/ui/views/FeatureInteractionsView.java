@@ -43,6 +43,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import br.com.rise.featurejs.ui.handlers.WorkspaceChangeHandler;
 import br.com.rise.featurejs.ui.helpers.managers.ScatteringTraceabilityLinksManager;
+import br.com.rise.featurejs.ui.model.FeatureAssociation;
 import br.com.rise.featurejs.ui.model.ModuleToVariationPointsLink;
 import br.com.rise.featurejs.ui.model.ScatteringTraceabilityLink;
 import br.com.riselabs.vparser.beans.CCVariationPoint;
@@ -65,21 +66,6 @@ public class FeatureInteractionsView extends ViewPart implements
 	private static TabFolder tabFolder;
 	private Map<String, TabItem> configTabs;
 
-	private WorkspaceChangeHandler wHandler;
-
-	ISelectionListener pListener = new ISelectionListener() {
-        public void selectionChanged(IWorkbenchPart part, ISelection sel) {
-           if (!(sel instanceof IStructuredSelection))
-              return;
-           IStructuredSelection ss = (IStructuredSelection) sel;
-           Object o = ss.getFirstElement();
-           if (o instanceof IProject){
-        	   IFeatureProject f = CorePlugin.getFeatureProject((IProject) o);
-        	   currentProject = f;
-        	   wHandler.getInstance().setTargetProject(f);
-           }
-        }
-     };
      
 	public FeatureInteractionsView(){
 		ScatteringTraceabilityLinksManager.getInstance().addChangeListener(this);
@@ -87,7 +73,6 @@ public class FeatureInteractionsView extends ViewPart implements
 	
 	public void createPartControl(Composite parent) {
 		this.parent = parent;
-		getSite().getPage().addSelectionListener(pListener);
 		
 		hookProjectTab();
 		hookConfigTabs();
@@ -186,7 +171,7 @@ public class FeatureInteractionsView extends ViewPart implements
 		if (o instanceof List<?>)
 			links = (List<ScatteringTraceabilityLink>) o;
 
-		this.currentProject = links.get(0).getProject();
+		this.currentProject = WorkspaceChangeHandler.getInstance().getCurrentProject();
 
 		disposeTabFolder();
 		
@@ -361,36 +346,9 @@ public class FeatureInteractionsView extends ViewPart implements
 
 	}
 
-	class FeatureAssociation {
-		String feature;
-		Map<String, Integer> associations;
-
-		public FeatureAssociation(String fname) {
-			feature = fname;
-			associations = new HashMap<String, Integer>();
-		}
-
-		public void add(String feature) {
-			if (associations.containsKey(feature)) {
-				associations.put(feature, associations.get(feature) + 1);
-			} else {
-				associations.put(feature, 1);
-			}
-		}
-
-		public String getFeature() {
-			return feature;
-		}
-
-		public Map<String, Integer> getAssociations() {
-			return associations;
-		}
-	}
 	
 	@Override
 	public void dispose(){
-//		workspace.removeResourceChangeListener(wListener);
-//		getSite().getPage().removeSelectionListener(pListener);
 		super.dispose();
 	}
 
