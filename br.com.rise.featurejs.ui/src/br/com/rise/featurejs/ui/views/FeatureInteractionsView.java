@@ -78,9 +78,9 @@ IZoomableWorkbenchPart, PropertyChangeListener {
 	private LayoutAlgorithm setLayout() {
 		LayoutAlgorithm layout;
 		// TODO create a toggle layout action.
-		 layout = new
-		 SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
-//		layout = new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
+//		 layout = new
+//		 SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
+		layout = new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
 //		// layout = new
 //		// GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING);
 //		// layout = new
