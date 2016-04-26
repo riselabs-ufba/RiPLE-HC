@@ -11,14 +11,15 @@ RiPLE-HC is a hybrid composer for Javascript based systems. RiPLE-HC compose sys
 * [Low-level variability support for web-based software product lines](http://doi.acm.org/10.1145/2556624.2556637) @ VaMoS 2014.
 
 
-Main Developers
+### Main Developers
 -------
 
-* FeatureJS  [More information](http://doi.acm.org/10.1145/2556624.2556637):
+#### FeatureJS  ([More information](http://doi.acm.org/10.1145/2556624.2556637)):
 
 **Eduardo Gomes Trzan**
+
 **Márcio Magalhães**
 
-* Scattering Location Support:
+#### Scattering Location Support:
 
 **Alcemir Santos** ([@alcemirsantos](https://github.com/alcemirsantos))
