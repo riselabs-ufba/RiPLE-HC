@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="de.ovgu.featureide.core.composers">
+      <composer
+            class="br.com.reconcavo.featurejs.FeatureJsComposer"
+            description="JS composer to FeatureIDE"
+            id="br.com.reconcavo.featurejs.FeatureJsComposer"
+            name="FeatureJS"
+            nature="br.com.reconcavo.featurejs.FeatureJsComposer">
+      </composer>
+   </extension>
+   <extension point="org.eclipse.ui.views">
+     <view
+           allowMultiple="true"
+           category="br.com.reconcavo.featurejs"
+           class="br.com.reconcavo.featurejs.views.FeatureMetricsView"
+           icon="icon/FeatureJSIcon.gif"
+           id="br.com.reconcavo.featurejs.views.FeatureMetricsView"
+           name="FeatureJS Metrics"/>
+     <category
+           id="br.com.reconcavo.featurejs"
+           name="FeatureJS"
+           parentCategory="FeatureIDE">
+     </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="de.ovgu.featureide.ui.FeatureIDEperspective">
+         <view
+               id="br.com.reconcavo.featurejs.views.TraceabilityTreeView"
+               ratio="0.5"
+               relationship="stack"
+               relative="org.eclipse.ui.navigator.ProjectExplorer">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+
+</plugin>

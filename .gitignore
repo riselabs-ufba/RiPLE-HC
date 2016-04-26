@@ -1,0 +1,23 @@
+
+# ignore MacOS files
+*.DS_Store
+
+# ignore generated files
+bin/
+*.class
+ 
+# ignore temporary files
+.tmp/
+
+
+# ignore Zest .gitignore files
+target
+.refactorings
+plugin.xml_gen
+test.properties
+org.eclipse.gef4.zest.tests/resources/output/*.dot
+org.eclipse.gef4.zest.tests/resources/tests/*.png
+org.eclipse.gef4.zest.dot.ui/Graphviz_DOT_as_a_DSL_for_Zest
+org.eclipse.gef4.zest.dot.ui/Zest
+org.eclipse.gef4.zest.dot.ui/*-toc.xml
+src-gen

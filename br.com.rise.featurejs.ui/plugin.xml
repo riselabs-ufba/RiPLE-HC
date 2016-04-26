@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="Build Metrics"
+            icon="icons/sample.gif"
+            category="br.com.reconcavo.featurejs"
+            class="br.com.rise.featurejs.ui.views.BuildMetricsView"
+            id="br.com.rise.riplehc.ui.views.BuildMetricsView">
+      </view>
+      <view
+            category="br.com.reconcavo.featurejs"
+            class="br.com.rise.featurejs.ui.views.ScatteringTreeView"
+            icon="icons/scattering.png"
+            id="br.com.rise.featurejs.ui.views.ScatteringTreeView"
+            name="Scattering Tree">
+      </view>
+      <view
+            category="br.com.reconcavo.featurejs"
+            class="br.com.rise.featurejs.ui.views.FeatureInteractionsView"
+            icon="icons/hide_macros.gif"
+            id="br.com.rise.featurejs.ui.view.FeatureInteractions"
+            name="Feature Interactions"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+
+      <extension
+         point="org.eclipse.ui.commands">
+         <command
+               defaultHandler="br.com.rise.featurejs.ui.handlers.ShowInScatteringTreeViewHandler"
+               id="br.com.rise.featurejs.ui.command.ShowInScatteringTreeView"
+               name="Show in Scattering Tree View">
+         </command>
+         <command
+               defaultHandler="br.com.rise.featurejs.ui.handlers.OpenSouceCodeEditorHandler"
+               id="br.com.rise.featurejs.ui.command.OpenEditor"
+               name="Open Source Code Editor">
+         </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="br.com.rise.featurejs.ui.command.ShowInScatteringTreeView">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+          <menuContribution
+                allPopups="false"
+                locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+             <command
+                   commandId="br.com.rise.featurejs.ui.command.ShowInScatteringTreeView"
+                   label="Show in Scattering Tree View"
+                   style="push">
+                <visibleWhen
+                      checkEnabled="false">
+                   <with
+                         variable="selection">
+                      <count
+                            value="1">
+                      </count>
+                      <iterate>
+                      <and>
+                        <instanceof
+                              value="org.eclipse.core.resources.IProject">
+                        </instanceof>
+                        <test
+                              property="org.eclipse.core.resources.projectNature"
+                              value="de.ovgu.featureide.core.featureProjectNature">
+                        </test>
+                     </and>
+                      </iterate>
+                   </with>
+                </visibleWhen>
+             </command>
+          </menuContribution>
+   </extension>
+   
+   <extension
+      point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID = 
+         "org.eclipse.ui.resourcePerspective">
+      <showInPart id = "br.com.rise.featurejs.ui.views.ScatteringTreeView"/>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="de.ovgu.featureide.ui.FeatureIDEperspective">
+         <showInPart
+               id="br.com.rise.featurejs.ui.views.ScatteringTreeView">
+         </showInPart>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>
